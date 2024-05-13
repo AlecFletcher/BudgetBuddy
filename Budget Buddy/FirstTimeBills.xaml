@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Budget_Buddy.FirstTimeBills"
+             xmlns:models="clr-namespace:Budget_Buddy.Models"
+             Loaded="ContentPage_Loaded">
+    <ScrollView>
+        <VerticalStackLayout>
+            <Grid
+                ColumnDefinitions="3*,2*,2*,1*"
+                Margin="10">
+                <Border
+                    Grid.Column="0">
+                    <Label Text="Name"
+                       FontAttributes="Bold"
+                       FontSize="25"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+                </Border>
+
+                <Border
+                    Grid.Column="1">
+                    <Label Text="Price"
+                       FontAttributes="Bold"
+                       Grid.Column="1"
+                       FontSize="25"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+                </Border>
+
+                <Border
+                    Grid.Column="2">
+                    <Label Text="Day Due"
+                       FontAttributes="Bold"
+                       Grid.Column="2"
+                       FontSize="25"
+                       HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                       VerticalOptions="Center"/>
+                </Border>
+
+            </Grid>
+            <CollectionView
+                x:Name="BillListCollectionView"
+                x:DataType="models:Bill">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Margin="10,0">
+                            <Grid
+                                ColumnDefinitions="3*,2*,2*,1*"
+                                RowDefinitions="100">
+                                <Entry Text="{Binding Name}"
+                                    Placeholder="Name"
+                                    Margin="10,0"
+                                    Grid.Column="0"
+                                    FontSize="20"
+                                    HorizontalOptions="Center"
+                                    HorizontalTextAlignment="Start"
+                                    VerticalOptions="Center"/>
+
+                                <Entry Text="{Binding Price}"
+                                    Placeholder="Price"
+                                    Keyboard="Numeric"
+                                    FontAttributes="Bold"
+                                    Grid.Column="1"
+                                    FontSize="20"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+
+                                <Entry Text="{Binding DueDay}"
+                                    Placeholder="Day"
+                                    Keyboard="Numeric"
+                                    FontAttributes="Bold"
+                                    MaxLength="2"
+                                    Grid.Column="2"
+                                    FontSize="20"
+                                    HorizontalOptions="Center"
+                                    HorizontalTextAlignment="Center"
+                                    VerticalOptions="Center"/>
+                                <ImageButton 
+                                    Grid.Column="3"
+                                    Clicked="ImageButton_Clicked"
+                                    Margin="0,0,10,0"
+                                    Source="trashcan.png"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Center"></ImageButton>
+                            </Grid>
+                        </Border>
+
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Grid
+                Margin="20"
+                ColumnDefinitions="7*,1*"
+                RowDefinitions="50">
+                <ImageButton Source="plus_symbol.png" 
+                             Clicked="plus_symbol_clicked"
+                             Grid.Column="1"></ImageButton>
+            </Grid>
+            <Grid ColumnDefinitions="1*,4*,1*"
+                  RowDefinitions="80"
+                  Margin="0,30">
+                <Button
+                    Text="Finish"
+                    Clicked="Button_Clicked"
+                    FontSize="30"
+                    FontAttributes="Bold"
+                    Grid.Column="1"></Button>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

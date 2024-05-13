@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Budget_Buddy.FirstTimePreferences">
+    <ScrollView>
+        <VerticalStackLayout
+            Margin="20,0">
+            <Label 
+                Text="Almost done!"
+                FontSize="40"
+                Grid.Column="0"
+                Grid.Row="0"
+                VerticalOptions="Center" 
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                FontAttributes="Bold"/>
+            <Grid RowDefinitions="70,70" ColumnDefinitions="2*,1*">
+                <Label Text="Basic Setup:" Grid.Row="0" Grid.Column="0" FontSize="30" VerticalOptions="Center"></Label>
+                <Label Text="Advanced Setup:" Grid.Row="1" Grid.Column="0" FontSize="30" VerticalOptions="Center"></Label>
+                <RadioButton x:Name="BasicSetup_RadioButton" Grid.Row="0" Grid.Column="1" HorizontalOptions="End" VerticalOptions="Center" IsChecked="True" CheckedChanged="BasicSetup_RadioButton_CheckedChanged"></RadioButton>
+                <RadioButton x:Name="AdvancedSetup_RadioButton" Grid.Row="1" Grid.Column="1" HorizontalOptions="End" VerticalOptions="Center" IsChecked="False" CheckedChanged="AdvancedSetup_RadioButton_CheckedChanged"></RadioButton>
+            </Grid>
+
+
+            <Border
+                x:Name="AdvancedSetup_Grid"
+                StrokeShape="RoundRectangle 10,10,10,10"
+                Margin="0,20"
+                IsVisible="False">
+                <Grid
+                    ColumnDefinitions="2*,1*"
+                    RowDefinitions="60,60"
+                    Margin="20">
+
+                    <Label Text="Debt Percentage:" Grid.Column="0" Grid.Row="0" FontSize="20" VerticalOptions="Center"/>
+                    <Entry x:Name="DebtPercent_Entry" Grid.Column="1" Grid.Row="0" VerticalOptions="Center" FontSize="20" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
+
+                    <Label Text="Savings Percentage:" Grid.Column="0" Grid.Row="1" FontSize="20" VerticalOptions="Center"/>
+                    <Entry x:Name="SavingsPercent_Entry" Grid.Column="1" Grid.Row="1" VerticalOptions="Center" FontSize="20" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
+                </Grid>
+
+            </Border>
+
+            <Border
+                x:Name="BasicSetup_Grid"
+                StrokeShape="RoundRectangle 10,10,10,10"
+                Margin="0,20">
+                <Grid
+                    Margin="20"
+                    ColumnDefinitions="2*,1*"
+                    RowDefinitions="1*,1*,1*"
+                    RowSpacing="10">
+                    <Label Text="Do you have at least $1,000 in savings?"
+                           FontSize="20"
+                           Grid.Column="0"
+                           Grid.Row="0"
+                           VerticalOptions="Center"
+                           FontAttributes="Bold"/>
+                    <CheckBox
+                          x:Name="HasSavings_Checkbox"
+                          IsChecked="False"
+                          Grid.Row="0"
+                          Grid.Column="1"
+                          Margin="0,0,-20,0"
+                          VerticalOptions="Center"
+                        CheckedChanged="HasSavings_Checkbox_CheckedChanged"></CheckBox>
+                    <Grid Grid.Column="0"
+                          IsVisible="False"
+                          Grid.ColumnSpan="2"
+                          Grid.Row="1"
+                          ColumnDefinitions="2*,1*"
+                          x:Name="DebtOptions_Grid">
+                        <Label Text="Do you have debt?"
+                           FontSize="20"
+                           Grid.Column="0"
+                           Grid.Row="1"
+                           VerticalOptions="Center"
+                           FontAttributes="Bold"/>
+                        <CheckBox 
+                           x:Name="HasDebt_Checkbox"
+                           IsChecked="False"
+                           Grid.Row="1"
+                           Grid.Column="1"
+                           Margin="0,0,-20,0"
+                           VerticalOptions="Center"
+                           CheckedChanged="CheckBox_CheckedChanged"></CheckBox>
+                    </Grid>
+
+
+                    <Grid x:Name="HasDebt_Grid"
+                          IsVisible="False"
+                          Grid.Column="0"
+                          Grid.ColumnSpan="2"
+                          Grid.Row="2"
+                          Grid.RowSpan="2"
+                          ColumnDefinitions="2*,1*"
+                          RowDefinitions="80">
+                        <Label Text="How urgently do you want to pay off your debt?" Grid.Column="0" FontSize="20" FontAttributes="Bold"/>
+                        <Picker x:Name="DebtPayoff_Picker" SelectedIndex="0" Grid.Column="1" VerticalOptions="Center" HorizontalTextAlignment="Center" FontSize="20">
+                            <Picker.Items>
+                                <x:String>ASAP</x:String>
+                                <x:String>Quickly</x:String>
+                                <x:String>Relaxed</x:String>
+                            </Picker.Items>
+                        </Picker>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            
+            <Button Text="Next" Clicked="Button_Clicked" FontSize="30" FontAttributes="Bold" MinimumHeightRequest="80" MinimumWidthRequest="200" MaximumWidthRequest="200" Margin="0,50,0,50"></Button>
+        </VerticalStackLayout>
+
+    </ScrollView>
+</ContentPage>

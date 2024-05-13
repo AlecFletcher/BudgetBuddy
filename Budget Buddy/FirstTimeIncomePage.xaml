@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Budget_Buddy.FirstTimeIncomePage">
+    <ScrollView>
+        <VerticalStackLayout
+            Margin="20,0">
+            <Label 
+                Text="Let's get started!"
+                FontSize="40"
+                Grid.Column="0"
+                Grid.Row="0"
+                VerticalOptions="Center" 
+                HorizontalOptions="Center"
+                FontAttributes="Bold"/>
+            <Label 
+                Text="How often are you paid?"
+                Margin="0,50,0,0"
+                FontSize="30"
+                Grid.Column="0"
+                Grid.Row="0"
+                VerticalOptions="Center" 
+                HorizontalOptions="Center"
+                FontAttributes="Bold"/>
+            <Picker 
+                x:Name="PayFrequency_Picker"
+                Grid.Column="1" 
+                SelectedIndex="0"
+                Grid.Row="0" 
+                HorizontalTextAlignment="Center" 
+                Margin="0,20,0,0"
+                FontSize="30">
+                <Picker.Items>
+                    <x:String>Weekly</x:String>
+                    <x:String>Bi-Weekly</x:String>
+                    <x:String>Monthly</x:String>
+                </Picker.Items>
+            </Picker>
+            <Grid x:Name="BiMonthly_Grid" ColumnDefinitions="1*,1*" RowDefinitions="70,70" IsVisible="False">
+                <Label Text="First Payday:" Grid.Column="0" Grid.Row="0" FontSize="20" VerticalOptions="Center"></Label>
+                <Label Text="Second Payday:" Grid.Column="0" Grid.Row="1" FontSize="20" VerticalOptions="Center"></Label>
+                <Entry Grid.Column="1" Grid.Row="0" Keyboard="Numeric" FontSize="20" VerticalOptions="Center" MaximumWidthRequest="80" MinimumWidthRequest="60" HorizontalTextAlignment="Center"></Entry>
+                <Entry Grid.Column="1" Grid.Row="1" Keyboard="Numeric" FontSize="20" VerticalOptions="Center" MaximumWidthRequest="80" MinimumWidthRequest="60" HorizontalTextAlignment="Center"></Entry>
+            </Grid>
+            <BoxView HeightRequest="1" Color="LightGrey" Margin="-20,70,-40,50"/>
+            <Label 
+                Text="How much are you paid per paycheck? (Roughly)"
+                FontSize="30"
+                Grid.Column="0"
+                Grid.Row="0"
+                VerticalOptions="Center" 
+                HorizontalOptions="Center"
+                FontAttributes="Bold"/>
+            <Entry  
+                x:Name="Income_Entry"
+                HorizontalTextAlignment="Center" 
+                Margin="0,20,0,0"
+                FontSize="30"
+                Keyboard="Numeric"
+                >
+            </Entry>
+            <BoxView HeightRequest="1" Color="LightGrey" Margin="-20,70,-40,50"/>
+
+            <Grid x:Name="RecentPaycheck" ColumnDefinitions="1*" RowDefinitions="80,80">
+                <Label Text="When was your most recent payday?" Grid.Column="0" Grid.Row="0" FontSize="30" FontAttributes="Bold" VerticalOptions="Center" HorizontalOptions="Center"></Label>
+                <DatePicker x:Name="Payday_Datepicker" Grid.Column="0" Grid.Row="1" FontSize="30" VerticalOptions="Center" HorizontalOptions="Center" Margin="0,20,0,0"></DatePicker>
+            </Grid>
+            
+            <BoxView HeightRequest="1" Color="LightGrey" Margin="-20,50,-40,50"/>
+
+            <Button Text="Next" FontSize="30" Clicked="Button_Clicked" FontAttributes="Bold" MinimumHeightRequest="80" MinimumWidthRequest="200" MaximumWidthRequest="200" Margin="0,0,0,50"></Button>
+        </VerticalStackLayout>
+
+    </ScrollView>
+</ContentPage>
