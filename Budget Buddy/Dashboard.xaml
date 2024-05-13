@@ -10,7 +10,7 @@
     <ScrollView>
         <VerticalStackLayout>
             <Grid ColumnDefinitions="1*, 5*, 1*" RowDefinitions="70" Margin="20,0">
-                <ImageButton Source="backwards_arrow.png" Grid.Column="0"></ImageButton>
+                <ImageButton Source="backwards_arrow.png" Clicked="backwards_arrow_clicked" Grid.Column="0"></ImageButton>
                 <Label Grid.Column="1" x:Name="payperiod_label" FontSize="20" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"></Label>
                 <ImageButton Source="arrow.png" Clicked="forward_arrow_clicked" Grid.Column="2"></ImageButton>
             </Grid>

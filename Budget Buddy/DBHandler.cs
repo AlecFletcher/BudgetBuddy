@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -141,7 +142,52 @@ namespace Budget_Buddy
                 Bill bill = new Bill(reader[2].ToString(), Convert.ToDouble(reader[1]), Convert.ToInt32(reader[0]), reader[3].ToString() == "1");
                 Bill.BillList.Add(bill);
             }
+            reader.Close();
             command.Connection.Close();
+        }
+
+        public static DateTime GetPayperiod(int userId)
+        {
+            DateTime currentPayday = new DateTime();
+            SqlCommand command = new SqlCommand($"SELECT CurrentPayday FROM UserPreferences WHERE UserID = @userid", connection);
+            command.Parameters.AddWithValue("@userid", userId);
+            command.Connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+            reader.Read();
+            currentPayday = (DateTime)reader[0];
+            reader.Close();
+            command.Connection.Close();
+            return currentPayday;
+        }
+
+        public static int GetPayFrequency(int userId)
+        {
+            int result = 0;
+            SqlCommand command = new SqlCommand($"SELECT PayFrequency FROM UserPreferences WHERE UserID = @userid", connection);
+            command.Parameters.AddWithValue("@userid", userId);
+            command.Connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+            reader.Read();
+            result = Convert.ToInt32(reader[0]);
+            reader.Close();
+            command.Connection.Close();
+            return result;
+        }
+
+        public static List<double> GetUserPreferences(int userId)
+        {
+            List<double> result = new List<double>();
+            SqlCommand command = new SqlCommand($"SELECT Income, SavingsPercent, DebtPercent FROM UserPreferences WHERE UserID = @userid", connection);
+            command.Parameters.AddWithValue("@userid", userId);
+            command.Connection.Open();
+            SqlDataReader reader = command.ExecuteReader();
+            reader.Read();
+            result.Add(Convert.ToInt32(reader[0]));
+            result.Add(Convert.ToInt32(reader[1]));
+            result.Add(Convert.ToInt32(reader[2]));
+            reader.Close();
+            command.Connection.Close();
+            return result;
         }
     }
 }
