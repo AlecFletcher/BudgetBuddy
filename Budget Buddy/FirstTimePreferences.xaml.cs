@@ -1,3 +1,4 @@
+using Budget_Buddy.Models;
 using System.Security.Cryptography;
 
 namespace Budget_Buddy;
@@ -5,10 +6,6 @@ namespace Budget_Buddy;
 public partial class FirstTimePreferences : ContentPage
 {
     int UserID { get; set; }
-	public FirstTimePreferences()
-	{
-		InitializeComponent();
-	}
 
     public FirstTimePreferences(int userId)
     {
@@ -21,6 +18,7 @@ public partial class FirstTimePreferences : ContentPage
         AdvancedSetup_RadioButton.IsChecked = !BasicSetup_RadioButton.IsChecked;
         AdvancedSetup_Grid.IsVisible = false;
         BasicSetup_Grid.IsVisible = true;
+        debt_scrollview.IsVisible = false;
         DebtPayoff_Picker.SelectedIndex = 0;
     }
 
@@ -29,6 +27,7 @@ public partial class FirstTimePreferences : ContentPage
         BasicSetup_RadioButton.IsChecked = !AdvancedSetup_RadioButton.IsChecked;
         AdvancedSetup_Grid.IsVisible = true;
         BasicSetup_Grid.IsVisible = false;
+        debt_scrollview.IsVisible = true;
     }
 
     private void CheckBox_CheckedChanged(object sender, CheckedChangedEventArgs e)
@@ -36,9 +35,11 @@ public partial class FirstTimePreferences : ContentPage
         if (HasDebt_Checkbox.IsChecked)
         {
             HasDebt_Grid.IsVisible = true;
+            debt_scrollview.IsVisible = true;
             return;
         }
         HasDebt_Grid.IsVisible = false;
+        debt_scrollview.IsVisible = false;
         return;
     }
 
@@ -80,7 +81,19 @@ public partial class FirstTimePreferences : ContentPage
         }
         else
         {
-            if(DebtPercent_Entry.Text.Contains('.') || SavingsPercent_Entry.Text.Contains('.'))
+            if (DebtPercent_Entry.Text == string.Empty)
+            {
+                await DisplayAlert("Error", "Debt percentage cannot be empty.", "Okay");
+                return;
+            }
+
+            if (SavingsPercent_Entry.Text == string.Empty)
+            {
+                await DisplayAlert("Error", "Savings percentage cannot be empty.", "Okay");
+                return;
+            }
+
+            if (DebtPercent_Entry.Text.Contains('.') || SavingsPercent_Entry.Text.Contains('.'))
             {
                 await DisplayAlert("Error", "Values cannot have a decimal", "Okay");
                 return;
@@ -124,12 +137,63 @@ public partial class FirstTimePreferences : ContentPage
                 return;
             }
         }
-        Console.WriteLine(debtPayoffPercent.ToString());
-        Console.WriteLine(savingsPercent.ToString());
-        //DBHandler.UpdatePreferences(UserID, savingsPercent, debtPayoffPercent);
-        FirstTimeBills firstTimeBills = new FirstTimeBills();
+        foreach(Debt entry in Debt.DebtList)
+        {
+            if(entry.Name == string.Empty)
+            {
+                await DisplayAlert("Error", "You have a debt entry with a blank name.", "Okay");
+                return;
+            }
+            if(entry.DueDay < 1 || entry.DueDay > 28)
+            {
+                await DisplayAlert("Error", "An entry has an invalid date. It must be between 1 and 28.", "Okay");
+                return;
+            }
+            if(entry.PrincipalBalance <= 0)
+            {
+                await DisplayAlert("Error", "An entry needs a principal balance.", "Okay");
+                return;
+            }
+            if(entry.Price <= 0)
+            {
+                await DisplayAlert("Error", "An entry has an invalid payment amount.", "Okay");
+                return;
+            }
+        }
+
+        foreach(Debt debt in  Debt.DebtList)
+        {
+            await DBHandler.AddDebt(UserID, debt);
+        }
+
+        await DBHandler.UpdatePreferences(UserID, savingsPercent, debtPayoffPercent);
+        FirstTimeBills firstTimeBills = new FirstTimeBills(UserID);
         await Navigation.PushAsync(firstTimeBills);
         
     }
 
+    private void Add_Debt_Button_Clicked(object sender, EventArgs e)
+    {
+        Debt debt = new Debt("", 0, 0, 1);
+        Debt.DebtList.Add(debt);
+    }
+
+    private async void Delete_Debt_Button_Clicked(object sender, EventArgs e)
+    {
+        bool answer = await DisplayAlert("Delete?", "Are you sure you want to delete this debt entry?", "Yes", "No");
+        if (answer)
+        {
+            ImageButton imageButton = (ImageButton)sender;
+            Debt debt = (Debt)imageButton.BindingContext;
+            Debt.DebtList.Remove(debt);
+        }
+        return;
+    }
+
+    private async void ContentPage_Loaded(object sender, EventArgs e)
+    {
+        Debt.DebtList.Clear();
+        await DBHandler.GenerateDebtList(UserID);
+        debt_collectionview.ItemsSource = Debt.DebtList;
+    }
 }

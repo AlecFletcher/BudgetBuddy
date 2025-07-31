@@ -7,6 +7,7 @@
             InitializeComponent();
 
             MainPage = new NavigationPage(new LoginScreen());
+            //MainPage = new NavigationPage(new PreferencesPage());
         }
     }
 }

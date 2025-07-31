@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Budget_Buddy.UpdatePreferences"
+             xmlns:models="clr-namespace:Budget_Buddy.Models"
+             Loaded="ContentPage_Loaded">
+    <Grid>
+        <Label x:Name="percentages_label" IsVisible="False" Text="Update your contribution percentages below!" FontSize="30" FontAttributes="Bold" HorizontalTextAlignment="Center" Margin="20,0"/>
+        <Grid x:Name="percentages_grid" IsVisible="False" Margin="20,40,20,0" RowDefinitions="120,120,80,80" ColumnDefinitions="1*,1*">
+            <Label Text="Debt Percentage:" Grid.Row="0" Grid.Column="0" FontSize="30" VerticalOptions="Center"></Label>
+            <Entry x:Name="debt_entry" Grid.Row="0" Keyboard="Numeric" MaxLength="3" Grid.Column="1" Margin="20,0" FontSize="30" HorizontalTextAlignment="Center" VerticalOptions="Center"></Entry>
+            <Label Text="Savings Percentage:" Grid.Row="1" Grid.Column="0" FontSize="30" VerticalOptions="Center"></Label>
+            <Entry x:Name="savings_entry" Grid.Row="1" Keyboard="Numeric" MaxLength="3" Grid.Column="1" Margin="20,0" FontSize="30" HorizontalTextAlignment="Center" VerticalOptions="Center"></Entry>
+            <Button Text="Save" Clicked="Percentage_Save_Button_Clicked" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" FontSize="30" Margin="20,0"/>
+        </Grid>
+
+        <Grid x:Name="income_grid" IsVisible="False" ColumnDefinitions="1*,1*" RowDefinitions="150,60,60,80,80,200" Grid.Row="0" Grid.RowSpan="2">
+            <Label Text="Update your income and pay period below!" FontSize="30" Margin="20,0" HorizontalTextAlignment="Center" FontAttributes="Bold" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"></Label>
+            <Label Text="Income:" FontSize="25" Grid.Column="0" Grid.Row="1" HorizontalOptions="Center" VerticalOptions="Center"/>
+            <Entry x:Name="income_entry" Keyboard="Numeric" FontSize="25" Margin="0,0,20,0" Grid.Column="1" Grid.Row="1" VerticalOptions="Center" HorizontalTextAlignment="Center"/>
+            <Label Text="I am paid:" FontSize="25" Grid.Column="0" Grid.Row="2" HorizontalOptions="Center" VerticalOptions="Center"/>
+            <Picker x:Name="pay_frequency_picker" SelectedIndexChanged="pay_frequency_picker_SelectedIndexChanged" SelectedIndex="0" FontSize="25" Margin="0,0,20,0" Grid.Column="1" Grid.Row="2" VerticalOptions="Center" HorizontalTextAlignment="Center">
+                <Picker.Items>
+                    <x:String>Weekly</x:String>
+                    <x:String>Bi-Weekly</x:String>
+                    <x:String>Monthly</x:String>
+                    <x:String>Set Days (Twice Monthly)</x:String>
+                </Picker.Items>
+            </Picker>
+            <Label x:Name="recent_payday_label" Text="Most recent payday:" FontSize="25" Grid.Column="0" Grid.Row="3" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+            <DatePicker x:Name="recent_payday_datepicker" FontSize="25" Margin="0,0,20,0" Grid.Column="1" Grid.Row="3" VerticalOptions="Center" HorizontalOptions="Center"/>
+            <Entry x:Name="first_date" Placeholder="Day 1" PlaceholderColor="LightGray" HorizontalTextAlignment="Center" IsVisible="False" Keyboard="Numeric" MaxLength="2" FontSize="25" Margin="0,0,20,0" Grid.Column="1" Grid.Row="3" VerticalOptions="Center" HorizontalOptions="Center"></Entry>
+            <Entry x:Name="second_date" Placeholder="Day 2" PlaceholderColor="LightGray" HorizontalTextAlignment="Center" IsVisible="False" Keyboard="Numeric" MaxLength="2" FontSize="25" Margin="0,0,20,0" Grid.Column="1" Grid.Row="4" VerticalOptions="Center" HorizontalOptions="Center"></Entry>
+            <Button Text="Save" Clicked="Income_Save_Button_Clicked" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" Margin="40,0,40,0" HeightRequest="100" VerticalOptions="End" FontSize="30"/>
+        </Grid>
+        <Grid
+                x:Name="Bills_Grid"
+                RowDefinitions="1*,100"
+                IsVisible="False">
+            <ScrollView
+                    Grid.Row="0">
+                <VerticalStackLayout>
+                    <Grid x:Name="bills_grid"
+                        ColumnDefinitions="3*,2*,2*,1*"
+                        RowDefinitions="60,60"
+                        Margin="10">
+                        <Label Text="Update your bills"
+                       Grid.ColumnSpan="4"
+                       FontSize="35"
+                       HorizontalOptions="Center"/>
+                        <Label Text="Name"
+                       Grid.Column="0"
+                       Grid.Row="2"
+                       FontAttributes="Bold"
+                       FontSize="25"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+
+                        <Label Text="Price"
+                       Grid.Column="1"
+                       Grid.Row="2"
+                       FontAttributes="Bold"
+                       FontSize="25"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+
+                        <Label Text="Day Due"
+                       FontAttributes="Bold"
+                       Grid.Column="2"
+                       Grid.Row="2"
+                       FontSize="25"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       VerticalOptions="Center"/>
+                    </Grid>
+
+                    <CollectionView x:Name="bills_collectionview">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Bill">
+                                <Grid ColumnDefinitions="3*,2*,2*,50" RowDefinitions="80" >
+                                    <Entry  Text="{Binding Name, Mode=TwoWay}"
+                                    Placeholder="Name"
+                                    Margin="10,0"
+                                    Grid.Column="0"
+                                    FontSize="20"
+                                    HorizontalTextAlignment="Start"
+                                    VerticalOptions="Center"/>
+
+                                    <Entry Text="{Binding Price,Mode=TwoWay}"
+                                    Placeholder="Price"
+                                    Keyboard="Numeric"
+                                    FontAttributes="Bold"
+                                    Grid.Column="1"
+                                    FontSize="20"
+                                    VerticalOptions="Center"
+                                    HorizontalTextAlignment="Center"/>
+
+                                    <Entry Text="{Binding DueDay, Mode=TwoWay}"
+                                    Placeholder="Day"
+                                    Keyboard="Numeric"
+                                    FontAttributes="Bold"
+                                    MaxLength="2"
+                                    Grid.Column="2"
+                                    FontSize="20"
+                                    HorizontalTextAlignment="Center"
+                                    VerticalOptions="Center"/>
+
+                                    <ImageButton 
+                                    Grid.Column="3"
+                                    Clicked="delete_button_clicked"
+                                    Margin="0,0,10,0"
+                                    Source="trashcan.png"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+
+                    <Grid x:Name="bill_grid_plusbutton" ColumnDefinitions="6*,1*" RowDefinitions="60" Margin="20">
+                        <ImageButton Source="plus_symbol.png" Clicked="Add_Bill_Clicked" Grid.Column="1"/>
+                    </Grid>
+
+                    <Label Text="Update your debts"
+                   x:Name="debt_header"
+                    Grid.ColumnSpan="4"
+                    FontSize="35"
+                    HorizontalOptions="Center"/>
+
+                    <Grid ColumnDefinitions="3*,2*,1*,2*,50" ColumnSpacing="5" RowDefinitions="80" Margin="-20,0"
+                   x:Name="debt_grid_header">
+                        <Label  Text="Name"
+                        Margin="10,0,0,0"
+                        Grid.Column="0"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        VerticalOptions="Center"/>
+
+                        <Label Text="Minimum Payment"
+                        FontAttributes="Bold"
+                        Grid.Column="1"
+                        FontSize="20"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"/>
+
+                        <Label Text="Due Day"
+                        FontAttributes="Bold"
+                        Grid.Column="2"
+                        FontSize="20"
+                        HorizontalTextAlignment="Center"
+                        VerticalOptions="Center"/>
+
+                        <Label Text="Principal Balance"
+                        FontAttributes="Bold"
+                        Grid.Column="3"
+                        FontSize="20"
+                        HorizontalTextAlignment="Center"
+                        VerticalOptions="Center"/>
+                    </Grid>
+
+                    <CollectionView x:Name="debt_collectionview">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Debt">
+                                <Grid ColumnDefinitions="3*,2*,1*,2*,50" RowDefinitions="80" Margin="0">
+                                    <Entry  Text="{Binding Name, Mode=TwoWay}"
+                                    Placeholder="Name"
+                                    Margin="10,0"
+                                    Grid.Column="0"
+                                    FontSize="20"
+                                    HorizontalTextAlignment="Start"
+                                    VerticalOptions="Center"/>
+
+                                    <Entry Text="{Binding Price,Mode=TwoWay}"
+                                    Placeholder="Price"
+                                    Keyboard="Numeric"
+                                    FontAttributes="Bold"
+                                    Grid.Column="1"
+                                    FontSize="20"
+                                    VerticalOptions="Center"
+                                    HorizontalTextAlignment="Center"/>
+
+                                    <Entry Text="{Binding DueDay, Mode=TwoWay}"
+                                    Placeholder="Day"
+                                    Keyboard="Numeric"
+                                    FontAttributes="Bold"
+                                    MaxLength="2"
+                                    Grid.Column="2"
+                                    FontSize="20"
+                                    HorizontalTextAlignment="Center"
+                                    VerticalOptions="Center"/>
+
+                                    <Entry Text="{Binding PrincipalBalance, Mode=TwoWay}"
+                                    Placeholder="Balance"
+                                    Keyboard="Numeric"
+                                    FontAttributes="Bold"
+                                    MaxLength="9"
+                                    Grid.Column="3"
+                                    FontSize="20"
+                                    HorizontalTextAlignment="Center"
+                                    VerticalOptions="Center"/>
+
+                                    <ImageButton 
+                                    Grid.Column="4"
+                                    Clicked="debt_delete_button_clicked"
+                                    Margin="0,0,10,0"
+                                    Source="trashcan.png"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Grid x:Name="debt_grid_plusbutton" ColumnDefinitions="6*,1*" RowDefinitions="60" Margin="20">
+                        <ImageButton Source="plus_symbol.png" Clicked="Add_Debt_Clicked" Grid.Column="1"/>
+                    </Grid>
+
+                    <Label Text="Update your temporary bills (Only for the current pay period)"
+                   x:Name="temporary_bills_header"
+                    Grid.ColumnSpan="4"
+                    FontSize="35"
+                    HorizontalTextAlignment="Center"/>
+
+                    <Grid ColumnDefinitions="1*,1*,50" ColumnSpacing="5" RowDefinitions="80" Margin="-20,0"
+                   x:Name="temporary_bills_grid_header">
+
+                        <Label  Text="Name"
+                        Margin="10,0,0,0"
+                        Grid.Column="0"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        VerticalOptions="Center"/>
+
+                        <Label Text="Price"
+                        FontAttributes="Bold"
+                        Grid.Column="1"
+                        FontSize="20"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"/>
+                    </Grid>
+
+                    <CollectionView x:Name="temp_bills_collectionview">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Bill">
+                                <Grid ColumnDefinitions="1*,1*, 50" RowDefinitions="80" Margin="0">
+                                    <Entry  Text="{Binding Name, Mode=TwoWay}"
+                                    Placeholder="Name"
+                                    Margin="10,0"
+                                    Grid.Column="0"
+                                    FontSize="20"
+                                    HorizontalTextAlignment="Start"
+                                    VerticalOptions="Center"/>
+
+                                    <Entry Text="{Binding Price,Mode=TwoWay}"
+                                    Placeholder="Price"
+                                    Keyboard="Numeric"
+                                    FontAttributes="Bold"
+                                    Grid.Column="1"
+                                    FontSize="20"
+                                    VerticalOptions="Center"
+                                    HorizontalTextAlignment="Center"/>
+
+                                    <ImageButton 
+                                    Grid.Column="4"
+                                    Clicked="temp_bill_delete_button_clicked"
+                                    Margin="0,0,10,0"
+                                    Source="trashcan.png"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Grid x:Name="temp_bills_grid_plusbutton" ColumnDefinitions="6*,1*" RowDefinitions="60" Margin="20">
+                        <ImageButton Source="plus_symbol.png" Clicked="Add_Temp_Bill_Clicked" Grid.Column="1"/>
+                    </Grid>
+
+
+                    <Label Text="Update Your Recurring Bills (Every Pay Period)"
+                   x:Name="recurring_bills_header"
+                    Grid.ColumnSpan="4"
+                    FontSize="35"
+                    HorizontalTextAlignment="Center"/>
+
+                    <Grid ColumnDefinitions="1*,1*,50" ColumnSpacing="5" RowDefinitions="80" Margin="-20,0"
+                   x:Name="recurring_bills_grid_header">
+
+                        <Label  Text="Name"
+                        Margin="10,0,0,0"
+                        Grid.Column="0"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        VerticalOptions="Center"/>
+
+                        <Label Text="Price"
+                        FontAttributes="Bold"
+                        Grid.Column="1"
+                        FontSize="20"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"/>
+                    </Grid>
+
+                    <CollectionView x:Name="recurring_bills_collectionview">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Bill">
+                                <Grid ColumnDefinitions="2*,1*, 50" RowDefinitions="80" Margin="0">
+                                    <Entry  Text="{Binding Name, Mode=TwoWay}"
+                                    Placeholder="Name"
+                                    Margin="10,0"
+                                    Grid.Column="0"
+                                    FontSize="20"
+                                    HorizontalTextAlignment="Start"
+                                    VerticalOptions="Center"/>
+
+                                    <Entry Text="{Binding Price,Mode=TwoWay}"
+                                    Placeholder="Price"
+                                    Keyboard="Numeric"
+                                    FontAttributes="Bold"
+                                    Grid.Column="1"
+                                    FontSize="20"
+                                    VerticalOptions="Center"
+                                    HorizontalTextAlignment="Center"/>
+
+                                    <ImageButton 
+                                    Grid.Column="4"
+                                    Clicked="recurring_bill_delete_button_clicked"
+                                    Margin="0,0,10,0"
+                                    Source="trashcan.png"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Grid x:Name="recurring_bills_grid_plusbutton" ColumnDefinitions="6*,1*" RowDefinitions="60" Margin="20">
+                        <ImageButton Source="plus_symbol.png" Clicked="Add_Recurring_Bill_Clicked" Grid.Column="1"/>
+                    </Grid>
+                </VerticalStackLayout>
+
+
+            </ScrollView>
+            <Button x:Name="Save_Bills_Button" Text="Save" Clicked="Save_Button_Clicked" Margin="30,10" Grid.Row="1" FontSize="30"></Button>
+        </Grid>
+        <ActivityIndicator IsVisible="False" IsRunning="False" x:Name="Loading_Circle" WidthRequest="250" HeightRequest="250"></ActivityIndicator>
+
+    </Grid>
+</ContentPage>

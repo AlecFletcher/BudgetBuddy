@@ -22,7 +22,7 @@
                 VerticalOptions="Center" 
                 HorizontalOptions="Center"
                 FontAttributes="Bold"/>
-            <Picker 
+            <Picker
                 x:Name="PayFrequency_Picker"
                 Grid.Column="1" 
                 SelectedIndex="0"
@@ -42,13 +42,14 @@
                 <Entry Grid.Column="1" Grid.Row="0" Keyboard="Numeric" FontSize="20" VerticalOptions="Center" MaximumWidthRequest="80" MinimumWidthRequest="60" HorizontalTextAlignment="Center"></Entry>
                 <Entry Grid.Column="1" Grid.Row="1" Keyboard="Numeric" FontSize="20" VerticalOptions="Center" MaximumWidthRequest="80" MinimumWidthRequest="60" HorizontalTextAlignment="Center"></Entry>
             </Grid>
-            <BoxView HeightRequest="1" Color="LightGrey" Margin="-20,70,-40,50"/>
             <Label 
                 Text="How much are you paid per paycheck? (Roughly)"
                 FontSize="30"
                 Grid.Column="0"
                 Grid.Row="0"
+                Margin="20,80,20,0"
                 VerticalOptions="Center" 
+                HorizontalTextAlignment="Center"
                 HorizontalOptions="Center"
                 FontAttributes="Bold"/>
             <Entry  
@@ -59,10 +60,9 @@
                 Keyboard="Numeric"
                 >
             </Entry>
-            <BoxView HeightRequest="1" Color="LightGrey" Margin="-20,70,-40,50"/>
 
-            <Grid x:Name="RecentPaycheck" ColumnDefinitions="1*" RowDefinitions="80,80">
-                <Label Text="When was your most recent payday?" Grid.Column="0" Grid.Row="0" FontSize="30" FontAttributes="Bold" VerticalOptions="Center" HorizontalOptions="Center"></Label>
+            <Grid x:Name="RecentPaycheck" ColumnDefinitions="1*" RowDefinitions="80,80" Margin="20,80,20,0">
+                <Label Text="When was your most recent payday?" Grid.Column="0" Grid.Row="0" FontSize="30" FontAttributes="Bold" VerticalOptions="Center" HorizontalOptions="Center" HorizontalTextAlignment="Center"></Label>
                 <DatePicker x:Name="Payday_Datepicker" Grid.Column="0" Grid.Row="1" FontSize="30" VerticalOptions="Center" HorizontalOptions="Center" Margin="0,20,0,0"></DatePicker>
             </Grid>
             

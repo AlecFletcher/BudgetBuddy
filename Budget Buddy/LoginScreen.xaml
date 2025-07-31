@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Budget_Buddy.LoginScreen">
+             x:Class="Budget_Buddy.LoginScreen"
+             Loaded="ContentPage_Loaded">
+    <ContentPage.Resources>
+        <Style TargetType="Button">
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Secondary}}"/>
+        </Style>
+
+        <Style TargetType="Entry">
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource Secondary}}"/>
+        </Style>
+
+    </ContentPage.Resources>
     <VerticalStackLayout>
         <Label 
             Text="Welcome to your personal Budget Buddy!!"
             VerticalOptions="Center" 
             HorizontalOptions="Center"
-            FontSize="Title"
+            FontSize="35"
             FontAttributes="Bold"
             Margin="20"
             HorizontalTextAlignment="Center"/>
 
-        <Grid Margin="0,100,0,0" RowDefinitions="70,70,140,70" ColumnDefinitions="3*,4*">
+        <Grid Margin="0,100,0,0" RowDefinitions="70,70,50,140,70" ColumnDefinitions="3*,2*,2*">
             <Label
                 Text="Username:"
                 Grid.Row="0"
@@ -25,6 +36,7 @@
                 x:Name="Username_Entry"
                 Grid.Row="0"
                 Grid.Column="1"
+                Grid.ColumnSpan="2"
                 VerticalOptions="Center"
                 HorizontalOptions="FillAndExpand"
                 HorizontalTextAlignment="Start"
@@ -34,6 +46,7 @@
                 Text="Password:"
                 Grid.Row="1"
                 Grid.Column="0"
+                Grid.ColumnSpan="2"
                 Margin="20,0"
                 FontSize="Title"
                 VerticalOptions="Center"
@@ -42,23 +55,51 @@
                 x:Name="Password_Entry"
                 Grid.Row="1"
                 Grid.Column="1"
+                Grid.ColumnSpan="2"
                 VerticalOptions="Center"
                 HorizontalOptions="FillAndExpand"
                 HorizontalTextAlignment="Start"
                 Margin="0,0,20,0"
                 FontSize="20"
                 IsPassword="True"/>
-
+            <Label
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Grid.Row="2"
+                HorizontalOptions="End"
+                Text="Biometric Login:"
+                FontSize="20"
+                VerticalOptions="Center"/>
+            <CheckBox
+                x:Name="Save_Password_Checkbox"
+                Grid.Column="2"
+                Grid.Row="2"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"></CheckBox>
             <Button
+                x:Name="login_button"
                 Text="Log In"
                 Clicked="Button_Clicked"
                 FontSize="30"
-                Grid.Row="2"
+                Grid.Row="3"
                 Grid.Column="0"
                 Grid.ColumnSpan="3"
                 Margin="40,40,40,0"/>
+            <ActivityIndicator 
+                x:Name="loading_icon"
+                Grid.Row="0"
+                Grid.RowSpan="5"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                HeightRequest="200"
+                WidthRequest="200"
+                IsRunning="False"/>
+
+
             <Label
-                Grid.Row="3"
+                Grid.Row="4"
                 Grid.Column="0"
                 Grid.ColumnSpan="3"
                 Margin="0,30,0,0"
@@ -66,7 +107,7 @@
                 <Label.FormattedText>
                     <FormattedString>
                         <Span Text="Don't have an account? "></Span>
-                        <Span Text="Create an Account" TextColor="Blue">
+                        <Span Text="Create an Account" TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}">
                             <Span.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"></TapGestureRecognizer>
                             </Span.GestureRecognizers>

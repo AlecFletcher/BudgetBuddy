@@ -2,9 +2,22 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Budget_Buddy.PreferencesPage">
-    <VerticalStackLayout>
-        <Grid>
-            
-        </Grid>
-    </VerticalStackLayout>
+    <ContentPage.Resources>
+        <Style TargetType="Button">
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Lightest}, Dark={StaticResource OffBlack}}"></Setter>
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDark}, Dark={StaticResource Lightest}}"></Setter>
+            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource PrimaryDark}, Dark={StaticResource PrimaryDark}}"></Setter>
+        </Style>
+    </ContentPage.Resources>
+    <ScrollView>
+        <VerticalStackLayout Spacing="-2">
+            <Button Text="Update Debt / Savings Percentages" Clicked="Update_Percentage_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
+            <Button Text="Update Income / Pay Frequency" Clicked="Update_Income_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
+            <Button Text="Update Bills / Debts" Clicked="Update_Bills_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
+            <Button Text="Future Savings / Debt Report" Clicked="Report_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
+            <Button Text="Debt Payoff Report" Clicked="Debt_Payoff_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
+            <Button Text="All Bills and Debts" Clicked="Bill_Debt_List_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
+            <Button Text="Log Out" Clicked="Log_out_clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
+using Plugin.Maui.Biometric;
 
 namespace Budget_Buddy
 {
@@ -15,12 +16,13 @@ namespace Budget_Buddy
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                    fonts.AddFont("Crimson.ttf", "Crimson");
                 });
 
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
-
+            builder.Services.AddSingleton<IBiometric>(BiometricAuthenticationService.Default);
             return builder.Build();
         }
     }

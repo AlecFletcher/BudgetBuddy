@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Budget_Buddy.FirstTimePreferences">
+             x:Class="Budget_Buddy.FirstTimePreferences"
+             xmlns:Models="clr-namespace:Budget_Buddy.Models"
+             Loaded="ContentPage_Loaded">
     <ScrollView>
         <VerticalStackLayout
             Margin="20,0">
             <Label 
-                Text="Almost done!"
+                Text="Almost done! We will just set your savings and debt percentages below."
                 FontSize="40"
                 Grid.Column="0"
                 Grid.Row="0"
@@ -33,12 +35,11 @@
                     Margin="20">
 
                     <Label Text="Debt Percentage:" Grid.Column="0" Grid.Row="0" FontSize="20" VerticalOptions="Center"/>
-                    <Entry x:Name="DebtPercent_Entry" Grid.Column="1" Grid.Row="0" VerticalOptions="Center" FontSize="20" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
+                    <Entry x:Name="DebtPercent_Entry" Text="40" Grid.Column="1" Grid.Row="0" VerticalOptions="Center" FontSize="20" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
 
                     <Label Text="Savings Percentage:" Grid.Column="0" Grid.Row="1" FontSize="20" VerticalOptions="Center"/>
-                    <Entry x:Name="SavingsPercent_Entry" Grid.Column="1" Grid.Row="1" VerticalOptions="Center" FontSize="20" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
+                    <Entry x:Name="SavingsPercent_Entry" Text="40" Grid.Column="1" Grid.Row="1" VerticalOptions="Center" FontSize="20" Keyboard="Numeric" MaxLength="3" HorizontalTextAlignment="Center"/>
                 </Grid>
-
             </Border>
 
             <Border
@@ -50,7 +51,7 @@
                     ColumnDefinitions="2*,1*"
                     RowDefinitions="1*,1*,1*"
                     RowSpacing="10">
-                    <Label Text="Do you have at least $1,000 in savings?"
+                    <Label Text="Do you have at least $1,000 for emergencies?"
                            FontSize="20"
                            Grid.Column="0"
                            Grid.Row="0"
@@ -107,7 +108,32 @@
                 </Grid>
             </Border>
 
-            
+            <ScrollView x:Name="debt_scrollview" IsVisible="False">
+                <StackLayout>
+                    <Label Text="List your debts here:" FontSize="30"/>
+                    <Grid ColumnDefinitions="2*,2*,1*,2*,1*" ColumnSpacing="5" RowDefinitions="60">
+                        <Label Text="Name" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="0" FontSize="18"/>
+                        <Label Text="Balance Due" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" FontSize="18"/>
+                        <Label Text="Due Day" HorizontalOptions="Center" HorizontalTextAlignment="Center" VerticalOptions="Center" FontSize="18" Grid.Column="2"/>
+                        <Label Text="Payment Amount" Margin="8,0,0,0" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="3" FontSize="18"/>
+                    </Grid>
+                    <CollectionView x:DataType="Models:Debt" x:Name="debt_collectionview" Grid.Row="2" >
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="2*,2*,1*,2*,1*" ColumnSpacing="5" RowDefinitions="60">
+                                    <Entry Text="{Binding Name, Mode=TwoWay}" VerticalOptions="Center" Placeholder="Name" Grid.Column="0"/>
+                                    <Entry Text="{Binding PrincipalBalance, Mode=TwoWay}" Keyboard="Numeric" VerticalOptions="Center" Placeholder="Balance Due" HorizontalTextAlignment="Center" Grid.Column="1"/>
+                                    <Entry Text="{Binding DueDay, Mode=TwoWay}" Keyboard="Numeric" VerticalOptions="Center" Placeholder="Due Day" HorizontalTextAlignment="Center" Grid.Column="2"/>
+                                    <Entry Text="{Binding Price, Mode=TwoWay}" VerticalOptions="Center" Placeholder="Min Payment" HorizontalTextAlignment="Center" Grid.Column="3"/>
+                                    <ImageButton Grid.Column="4" Source="trashcan.png" Clicked="Delete_Debt_Button_Clicked"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <ImageButton HorizontalOptions="End" VerticalOptions="End" Margin="0,0,20,0" Source="plus_symbol.png" WidthRequest="45" Clicked="Add_Debt_Button_Clicked"/>
+                </StackLayout>
+            </ScrollView>
+
             <Button Text="Next" Clicked="Button_Clicked" FontSize="30" FontAttributes="Bold" MinimumHeightRequest="80" MinimumWidthRequest="200" MaximumWidthRequest="200" Margin="0,50,0,50"></Button>
         </VerticalStackLayout>
 
