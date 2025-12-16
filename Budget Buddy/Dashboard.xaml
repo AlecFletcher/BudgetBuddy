@@ -87,7 +87,7 @@
                         <DataTemplate>
                         <Border StrokeThickness="2" Padding="0,10">
                             <Grid ColumnDefinitions="1*,4*,1*,2*" ColumnSpacing="8" Margin="10,0,10,0">
-                                <CheckBox Grid.Column="0" IsChecked="{Binding Paid, Mode=TwoWay}" CheckedChanged="recurring_bill_paid_checkbox_changed" VerticalOptions="Center" HorizontalOptions="Center"></CheckBox>
+                                <CheckBox Grid.Column="0" IsChecked="{Binding Paid, Mode=TwoWay}" CheckedChanged="bill_paid_checkbox_changed" VerticalOptions="Center" HorizontalOptions="Center"></CheckBox>
                                 <Label Text="{Binding Name}" Grid.Column="1" FontSize="20" VerticalOptions="Center" HorizontalOptions="CenterAndExpand"></Label>
                                 <Label Text="{Binding DueDay}" Grid.Column="2" FontSize="20" VerticalOptions="Center" HorizontalOptions="Center"></Label>
                                 <Label Grid.Column="3" Text="{Binding Price, StringFormat='${0}'}" FontSize="20" VerticalOptions="Center" HorizontalOptions="Center"></Label>

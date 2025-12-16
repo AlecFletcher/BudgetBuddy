@@ -1,13 +1,14 @@
 using Budget_Buddy.Models;
 using NETCore.Encrypt;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 
 namespace Budget_Buddy;
 
 public partial class Dashboard : ContentPage
 {
-    int UserID;
+    static int UserID;
     string UserName;
     DateTime DBPayday = new DateTime();
     DateTime ViewPayday = new DateTime();
@@ -108,7 +109,9 @@ public partial class Dashboard : ContentPage
         current_balance_grid.IsVisible = false;
         remaining_balance_grid.IsVisible = true;
 
-        if (PayFrequency > 14)
+
+
+        if (PayFrequency > 20)
         {
             await DBHandler.GenerateBills(UserID, ViewPayday, ViewPayday.AddMonths(1));
         }
@@ -172,7 +175,7 @@ public partial class Dashboard : ContentPage
 
     private void forward_arrow_clicked(object sender, EventArgs e)
     {
-        if (PayFrequency > 14)
+        if (PayFrequency > 20)
         {
             ViewPayday = ViewPayday.AddMonths(1);
         }
@@ -195,7 +198,7 @@ public partial class Dashboard : ContentPage
 
     private void backwards_arrow_clicked(object sender, EventArgs e)
     {
-        if(PayFrequency > 14)
+        if(PayFrequency > 20)
         {
             ViewPayday = ViewPayday.AddMonths(-1);
         }
@@ -304,5 +307,18 @@ public partial class Dashboard : ContentPage
         Bill bill = (Bill)checkBox.BindingContext;
         await DBHandler.UpdateRecurringBillPaidStatus(bill.BillID, bill.Paid);
         RecalculateFunds(Balance);
+    }
+
+    private async void bill_paid_checkbox_changed(object sender, CheckedChangedEventArgs e)
+    {
+        CheckBox checkBox = sender as CheckBox;
+        Bill bill = (Bill)checkBox.BindingContext;
+        await DBHandler.UpdatePaidStatus(bill.BillID, bill.Paid);
+        RecalculateFunds(Balance);
+    }
+
+    public static int GetUserID()
+    {
+        return UserID;
     }
 }

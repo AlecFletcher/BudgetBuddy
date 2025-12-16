@@ -1,3 +1,6 @@
+using Android.OS;
+using Android.App;
+using Android.Content;
 using NETCore.Encrypt;
 using Plugin.Maui.Biometric;
 using System.Diagnostics;
@@ -6,12 +9,13 @@ namespace Budget_Buddy;
 
 public partial class LoginScreen : ContentPage
 {
-    //string sourceFile = "SavedLogin.txt";
-    //string path = string.Empty;
+    string sourceFile = "SavedLogin.txt";
+    string path = string.Empty;
     public LoginScreen()
 	{
 		InitializeComponent();
-        //path = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, sourceFile);
+        path = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, sourceFile);
+        WakeLockHelper.AcquireWakeLock(Android.App.Application.Context);
     }
 
     private void Button_Clicked(object sender, EventArgs e)
@@ -44,11 +48,11 @@ public partial class LoginScreen : ContentPage
                 await DBHandler.UpdateUserLastLogin(id);
                 if (Save_Password_Checkbox.IsChecked)
                 {
-                    //SaveCredentials(username, password);
+                    SaveCredentials(username, password);
                 }
                 else
                 {
-                    //SaveCredentials("", "");
+                    SaveCredentials("", "");
                 }
 
                 if (await DBHandler.IsNewAccount(id) || await DBHandler.GetBillTotal(id) == 0)
@@ -77,12 +81,8 @@ public partial class LoginScreen : ContentPage
 
     }
 
-    private void ContentPage_Loaded(object sender, EventArgs e)
-    {
-        Console.WriteLine("Test");
-    }
 
-    /*
+    
     private async void AuthenticateAndLogin()
     {
         string savedUsername = string.Empty;
@@ -142,5 +142,5 @@ public partial class LoginScreen : ContentPage
         stream.Write($"{username},{password}");
         stream.Close();
     }
-    */
+    
 }

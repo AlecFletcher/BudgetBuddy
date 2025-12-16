@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using Npgsql;
 using NpgsqlTypes;
+using Bumptech.Glide.Load;
 
 namespace Budget_Buddy
 {
@@ -9,6 +10,17 @@ namespace Budget_Buddy
     {
         static string postgresConnectionString = "Host=budgetbuddy.cn840u6ao3k2.us-east-1.rds.amazonaws.com,5432;Database=BudgetBuddy;Username=CRacomBiNiTzmArC;Password=rt7h+4lA>fhFK4n3;Database=budgetbuddy;";
         static NpgsqlDataSource dataSource = NpgsqlDataSource.Create(postgresConnectionString);
+
+        public static void DisconnectFromDB()
+        {
+            NpgsqlConnection.ClearAllPools();
+        }
+
+        public static void ConnectToDB()
+        {
+            postgresConnectionString = "Host=budgetbuddy.cn840u6ao3k2.us-east-1.rds.amazonaws.com,5432;Database=BudgetBuddy;Username=CRacomBiNiTzmArC;Password=rt7h+4lA>fhFK4n3;Database=budgetbuddy;";
+            dataSource = NpgsqlDataSource.Create(postgresConnectionString);
+        }
 
         #region User Queries
 
