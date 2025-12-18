@@ -7,6 +7,7 @@
              xmlns:models="clr-namespace:Budget_Buddy.Models"
              NavigationPage.HasBackButton="False">
     <ContentPage.ToolbarItems>
+        <ToolbarItem IconImageSource="calendar_symbol.png" Clicked="Calendar_Clicked"></ToolbarItem>
         <ToolbarItem IconImageSource="gear_icon.png" Clicked="ImageButton_Clicked"></ToolbarItem>
     </ContentPage.ToolbarItems>
     <ScrollView Grid.Row="0">
@@ -29,7 +30,15 @@
                     <Entry x:Name="current_balance_entry" Keyboard="Numeric" TextChanged="current_balance_entry_textchanged" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold" ></Entry>
                 </Grid>
 
-                <Grid x:Name="other_payperiod_dashboard_grid" IsVisible="False" x:DataType="viewmodels:DashboardViewModel" ColumnDefinitions="1*,1*,1*" RowDefinitions="40,40,40" Margin="0">
+            <Grid x:Name="monthly_balance_grid" IsVisible="False" ColumnDefinitions="1*,1*,1*" RowDefinitions="60,60" Margin="20">
+                <Label Text="Remaining Balance: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
+                <Label x:Name="remaining_monthly_balance_label" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold"></Label>
+                <Label Text="Monthly Bill Total: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
+                <Label x:Name="monthyl_bill_total_label" Grid.Column="2" Grid.Row="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold"></Label>
+
+            </Grid>
+
+            <Grid x:Name="other_payperiod_dashboard_grid" IsVisible="False" x:DataType="viewmodels:DashboardViewModel" ColumnDefinitions="1*,1*,1*" RowDefinitions="40,40,40" Margin="0">
 
                     <Label Text="Savings:" Grid.Column="1" Grid.Row="0" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
                     <Label x:Name="other_savings_amount_label" Text="" Grid.Column="2" Grid.Row="0" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>

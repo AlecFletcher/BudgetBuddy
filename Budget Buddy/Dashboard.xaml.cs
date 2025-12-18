@@ -321,4 +321,24 @@ public partial class Dashboard : ContentPage
     {
         return UserID;
     }
+
+    private void Calendar_Clicked(object sender, EventArgs e)
+    {
+        if (current_payperiod_dashboard_grid.IsVisible)
+        {
+            current_payperiod_dashboard_grid.IsVisible = false;
+            monthly_balance_grid.IsVisible = true;
+            current_balance_grid.IsVisible = false;
+            remaining_balance_grid.IsVisible = true;
+            PopulateCurrentPayPeriodGUI();
+        }
+        else
+        {
+            current_payperiod_dashboard_grid.IsVisible = true;
+            monthly_balance_grid.IsVisible = false;
+            current_balance_grid.IsVisible = true;
+            remaining_balance_grid.IsVisible = false;
+        }
+
+    }
 }
