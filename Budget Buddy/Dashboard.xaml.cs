@@ -2,6 +2,7 @@ using Budget_Buddy.Models;
 using NETCore.Encrypt;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 
 namespace Budget_Buddy;
@@ -329,8 +330,8 @@ public partial class Dashboard : ContentPage
             current_payperiod_dashboard_grid.IsVisible = false;
             monthly_balance_grid.IsVisible = true;
             current_balance_grid.IsVisible = false;
-            remaining_balance_grid.IsVisible = true;
-            PopulateCurrentPayPeriodGUI();
+            remaining_balance_grid.IsVisible = false;
+            
         }
         else
         {
@@ -338,7 +339,21 @@ public partial class Dashboard : ContentPage
             monthly_balance_grid.IsVisible = false;
             current_balance_grid.IsVisible = true;
             remaining_balance_grid.IsVisible = false;
+            PopulateCurrentPayPeriodGUI();
         }
 
+    }
+
+    private async Task DoMonthlyCalculation()
+    {
+        int multiplier;
+        int index = await DBHandler.GetPayFrequencyIndex(UserID);
+
+        switch (index)
+        {
+            case 1:
+
+                break;
+        }
     }
 }

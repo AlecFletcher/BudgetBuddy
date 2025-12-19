@@ -227,40 +227,18 @@ public partial class UpdatePreferences : ContentPage
             await DisplayAlert("Error", "Recent payday cannot be in the future.", "Okay");
             return;
         }
-        int payFrequency = 0;
+        int payFrequency = pay_frequency_picker.SelectedIndex;
         switch (pay_frequency_picker.SelectedIndex)
         {
-            case 0:
-                Console.WriteLine("Case 0 started");
-                payFrequency = 7;
-
-                break;
-
-            case 1:
-                payFrequency = 14;
-
-                break;
-            case 2:
-
-                payFrequency = Math.Abs((recent_payday_datepicker.Date - recent_payday_datepicker.Date.AddMonths(1)).Days);
-                break;
             case 3:
 
+                payFrequency = pay_frequency_picker.SelectedIndex;
                 int firstDay;
                 int secondDay;
 
                 if(first_date.Text == null || second_date.Text == null)
                 {
                     return;
-                }
-
-                if(DateTime.Now.Day < Convert.ToInt32(second_date.Text) && DateTime.Now.Day > Convert.ToInt32(first_date.Text))
-                {
-                    payFrequency = Convert.ToInt32(first_date.Text) - Convert.ToInt32(second_date.Text);
-                }
-                else
-                {
-                    payFrequency = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) - Convert.ToInt32(second_date.Text) + Convert.ToInt32(first_date.Text);
                 }
 
                 try
@@ -376,6 +354,13 @@ public partial class UpdatePreferences : ContentPage
             income_entry.Text = incomeText.ToString();
             pay_frequency_picker.SelectedIndex = await DBHandler.GetPayFrequencyIndex(UserID);
             recent_payday_datepicker.Date = await DBHandler.GetPayday(UserID);
+            if(pay_frequency_picker.SelectedIndex == 3)
+            {
+                List<int> setDaysList = await DBHandler.GetSetDays(UserID);
+                first_date.Text = setDaysList[0].ToString();
+                second_date.Text = setDaysList[1].ToString();
+            }
+
         }
         if (Purpose == "Percentages")
         {

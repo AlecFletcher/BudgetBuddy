@@ -80,12 +80,12 @@ namespace Budget_Buddy
             }
         }
 
-        public static async Task UpdateIncomeAndFrequency(int userId, int frequency, int income, DateTime recentPayday)
+        public static async Task UpdateIncomeAndFrequency(int userId, int frequencyIndex, int income, DateTime recentPayday)
         {
-            await using (var cmd = dataSource.CreateCommand("UPDATE UserPreferences SET Income = ($1), PayFrequency = ($2), CurrentPayday = ($3) WHERE UserID = ($4)"))
+            await using (var cmd = dataSource.CreateCommand("UPDATE UserPreferences SET Income = ($1), PayFrequencyIndex = ($2), CurrentPayday = ($3) WHERE UserID = ($4)"))
             {
                 cmd.Parameters.AddWithValue(income);
-                cmd.Parameters.AddWithValue(frequency);
+                cmd.Parameters.AddWithValue(frequencyIndex);
                 cmd.Parameters.AddWithValue(recentPayday);
                 cmd.Parameters.AddWithValue(userId);
                 cmd.ExecuteNonQuery();
@@ -303,7 +303,7 @@ namespace Budget_Buddy
                 FirstDay = secondDay;
                 SecondDay = firstDay;
             }
-            await using (var command = dataSource.CreateCommand("UPDATE UserPreferences SET firstsetpayday = @FirstDay, secondsetpayday = @SecondDay WHERE UserID = @userId"))
+            await using (var command = dataSource.CreateCommand("UPDATE UserPreferences SET firstsetpayday = @FirstDay, secondsetpayday = @SecondDay, payfrequencyindex = 3 WHERE UserID = @userId"))
             {
                 command.Parameters.AddWithValue("@FirstDay", FirstDay);
                 command.Parameters.AddWithValue("@SecondDay", SecondDay);
@@ -324,6 +324,23 @@ namespace Budget_Buddy
                 {
                     await reader.ReadAsync();
                     result = Convert.ToInt32(reader[0]);
+                }
+                return result;
+            }
+        }
+
+        public static async Task<List<int>> GetSetDays(int userId)
+        {
+            List<int> result = new List<int>();
+            await using (var command = dataSource.CreateCommand($"SELECT firstsetpayday, secondsetpayday FROM UserPreferences WHERE UserID = @userid"))
+            {
+                command.Parameters.AddWithValue("@userid", userId);
+
+                await using (var reader = await command.ExecuteReaderAsync())
+                {
+                    await reader.ReadAsync();
+                    result.Add(Convert.ToInt32(reader[0]));
+                    result.Add(Convert.ToInt32(reader[1]));
                 }
                 return result;
             }
@@ -442,9 +459,19 @@ namespace Budget_Buddy
             }
         }
 
+        public static async Task UpdatePayFrequencyIndex(int userId, int payfrequencyindex)
+        {
+            await using (var command = dataSource.CreateCommand("UPDATE userpreferences SET payfrequencyindex = @payfrequencyindex WHERE UserId = @userid"))
+            {
+                command.Parameters.AddWithValue("@payfrequencyindex", payfrequencyindex);
+                command.Parameters.AddWithValue("@userid", userId);
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
         public static async Task<int> GetPayFrequencyIndex(int userId)
         {
-            await using (var command = dataSource.CreateCommand("SELECT PayFrequency from UserPreferences WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand("SELECT PayFrequencyIndex from UserPreferences WHERE UserID = @userid"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -452,17 +479,7 @@ namespace Budget_Buddy
                 {
                     await reader.ReadAsync();
                     int frequency = Convert.ToInt32(reader[0]);
-
-
-                    if (frequency == 7)
-                    {
-                        return 0;
-                    }
-                    if (frequency == 14)
-                    {
-                        return 1;
-                    }
-                    return 2;
+                    return frequency;
                 }
             }
         }
