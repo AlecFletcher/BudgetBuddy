@@ -15,12 +15,20 @@ namespace Budget_Buddy
 
         protected override void OnSleep()
         {
-            DBHandler.DisconnectFromDB();
+            try
+            {
+                DBHandler.DisconnectFromDB();
+            }
+            catch (Exception ex) { }
         }
 
-        protected async override void OnResume()
+        protected override void OnResume()
         {
-            DBHandler.ConnectToDB();
+            try
+            {
+                DBHandler.ConnectToDB();
+            }
+            catch(Exception ex) { }
         }
     }
 }

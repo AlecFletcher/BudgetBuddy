@@ -30,11 +30,13 @@
                     <Entry x:Name="current_balance_entry" Keyboard="Numeric" TextChanged="current_balance_entry_textchanged" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold" ></Entry>
                 </Grid>
 
-            <Grid x:Name="monthly_balance_grid" IsVisible="False" ColumnDefinitions="1*,1*,1*" RowDefinitions="60,60" Margin="20">
-                <Label Text="Remaining Balance: " FontSize="25" Grid.Column="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
-                <Label x:Name="remaining_monthly_balance_label" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold"></Label>
+            <Grid x:Name="monthly_balance_grid" IsVisible="False" ColumnDefinitions="1*,1*,1*" RowDefinitions="60,60,60" Margin="20">
+                <Label Text="Current Balance: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
+                <Entry x:Name="monthly_current_balance_entry" Keyboard="Numeric" TextChanged="current_balance_entry_textchanged" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold" ></Entry>
+                <Label Text="Remaining Balance: " FontSize="25" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
+                <Label x:Name="remaining_monthly_balance_label" Grid.Column="2" Grid.Row="1" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold"></Label>
                 <Label Text="Monthly Bill Total: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
-                <Label x:Name="monthyl_bill_total_label" Grid.Column="2" Grid.Row="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold"></Label>
+                <Label x:Name="monthly_bill_total_label" Grid.Column="2" Grid.Row="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold"></Label>
 
             </Grid>
 

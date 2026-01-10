@@ -26,7 +26,7 @@ namespace Budget_Buddy
 
         public static async Task AddUser(string Username, string Password, string Name)
         {
-            await using (var command = dataSource.CreateCommand("INSERT INTO Users (username, password, firstname) VALUES(@username, @password, @name); INSERT INTO UserPreferences (income, payfrequency, savingspercent, debtpercent, currentpayday, savingsdollaramount, debtdollaramount, currentbalance, savingspaid, debtpaid) VALUES(null, null, null, null, null, 0, 0, 0, false, false);"))
+            await using (var command = dataSource.CreateCommand("INSERT INTO Users (username, password, firstname) VALUES(@username, @password, @name); INSERT INTO UserPreferences (savingspercent, debtpercent, savingsdollaramount, debtdollaramount, currentbalance, savingspaid, debtpaid) VALUES(null, null, 0, 0, 0, false, false);"))
             {
                 command.Parameters.AddWithValue("@username", Username);
                 command.Parameters.AddWithValue("@password", Password);
@@ -70,7 +70,9 @@ namespace Budget_Buddy
             return result;
         }
 
-        public static async Task UpdatePayDay(int userId, DateTime currentPayday)
+
+        //UPDATE TO PUDATE BASED ON ID
+        public static async Task UpdatePayDay(int userId, int incomeid, DateTime currentPayday)
         {
             await using (var cmd = dataSource.CreateCommand("UPDATE UserPreferences SET CurrentPayday = ($1) WHERE UserID = ($2)"))
             {
@@ -80,6 +82,7 @@ namespace Budget_Buddy
             }
         }
 
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task UpdateIncomeAndFrequency(int userId, int frequencyIndex, int income, DateTime recentPayday)
         {
             await using (var cmd = dataSource.CreateCommand("UPDATE UserPreferences SET Income = ($1), PayFrequencyIndex = ($2), CurrentPayday = ($3) WHERE UserID = ($4)"))
@@ -182,6 +185,8 @@ namespace Budget_Buddy
             }
         }
 
+
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task<DateTime> GetPayday(int userId)
         {
             DateTime currentPayday = new DateTime();
@@ -198,6 +203,8 @@ namespace Budget_Buddy
             }
         }
 
+
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task UpdatePayFrequencyForSetDays(int userId)
         {
             int FirstDay;
@@ -288,6 +295,7 @@ namespace Budget_Buddy
             }
         }
 
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task SetBiMonthlyPaydays(int userId, int firstDay, int secondDay)
         {
             int FirstDay = 0;
@@ -312,7 +320,7 @@ namespace Budget_Buddy
             }
         }
 
-
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task<int> GetPayFrequency(int userId)
         {
             int result = 0;
@@ -329,6 +337,7 @@ namespace Budget_Buddy
             }
         }
 
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task<List<int>> GetSetDays(int userId)
         {
             List<int> result = new List<int>();
@@ -346,6 +355,7 @@ namespace Budget_Buddy
             }
         }
 
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task<List<double>> GetUserPreferences(int userId)
         {
             List<double> result = new List<double>();
@@ -426,6 +436,7 @@ namespace Budget_Buddy
             }
         }
 
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task<int> GetIncome(int userId)
         {
             await using (var command = dataSource.CreateCommand("SELECT Income from UserPreferences WHERE UserID = @userid"))
@@ -442,6 +453,7 @@ namespace Budget_Buddy
             }
         }
 
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task<double> GetMonthlyIncome(int userId)
         {
             await using (var command = dataSource.CreateCommand("SELECT Income from UserPreferences WHERE UserID = @userid"))
@@ -459,6 +471,7 @@ namespace Budget_Buddy
             }
         }
 
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task UpdatePayFrequencyIndex(int userId, int payfrequencyindex)
         {
             await using (var command = dataSource.CreateCommand("UPDATE userpreferences SET payfrequencyindex = @payfrequencyindex WHERE UserId = @userid"))
@@ -469,6 +482,7 @@ namespace Budget_Buddy
             }
         }
 
+        //UPDATE TO ACCOUNT FOR NEW TABLE
         public static async Task<int> GetPayFrequencyIndex(int userId)
         {
             await using (var command = dataSource.CreateCommand("SELECT PayFrequencyIndex from UserPreferences WHERE UserID = @userid"))

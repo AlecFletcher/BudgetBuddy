@@ -1,5 +1,6 @@
 using Budget_Buddy.Models;
 using NETCore.Encrypt;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -323,22 +324,16 @@ public partial class Dashboard : ContentPage
         return UserID;
     }
 
-    private void Calendar_Clicked(object sender, EventArgs e)
+    private async void Calendar_Clicked(object sender, EventArgs e)
     {
         if (current_payperiod_dashboard_grid.IsVisible)
         {
-            current_payperiod_dashboard_grid.IsVisible = false;
-            monthly_balance_grid.IsVisible = true;
-            current_balance_grid.IsVisible = false;
-            remaining_balance_grid.IsVisible = false;
-            
+            PopulateMonthlyGrid();
+            await DoMonthlyCalculation();
         }
         else
         {
-            current_payperiod_dashboard_grid.IsVisible = true;
-            monthly_balance_grid.IsVisible = false;
-            current_balance_grid.IsVisible = true;
-            remaining_balance_grid.IsVisible = false;
+            HideMonthlyGrid();
             PopulateCurrentPayPeriodGUI();
         }
 
@@ -346,14 +341,91 @@ public partial class Dashboard : ContentPage
 
     private async Task DoMonthlyCalculation()
     {
-        int multiplier;
+        int extrapaydays = 1;
         int index = await DBHandler.GetPayFrequencyIndex(UserID);
 
         switch (index)
         {
-            case 1:
+            case 0:
+                extrapaydays = 3;
+                break;
 
+            case 1:
+                extrapaydays = 1;
+                break;
+
+            case 2:
+                extrapaydays = 0;
+                break;
+
+            case 3:
+                extrapaydays = 1;
                 break;
         }
+
+        Income = Income * (extrapaydays + 1);
+        payperiod_label.Text = $"{ViewPayday.ToString("MM/dd/yy")} - {ViewPayday.AddMonths(1).ToString("MM/dd/yy")}";
+        await DBHandler.GenerateBills(UserID, DBPayday, ViewPayday);
+
+        CurrentPayperiodBillTotal = 0;
+        foreach (Bill bill in Bill.BillList)
+        {
+            if (!bill.Paid)
+            {
+                CurrentPayperiodBillTotal += bill.Price;
+            }
+
+        }
+        foreach (Bill bill in Bill.TempBillList)
+        {
+            if (!bill.Paid)
+            {
+                CurrentPayperiodBillTotal += bill.Price;
+            }
+        }
+
+        if(extrapaydays > 0)
+        {
+            List<Bill> tempList = Bill.RecurringBillList.ToList();
+            for (int i = 0; i < extrapaydays; i++)
+            {
+                foreach (Bill bill in tempList) 
+                {
+                    Bill.RecurringBillList.Add(bill);
+                }
+            }
+        }
+
+        
+
+            foreach (Bill bill in Bill.RecurringBillList)
+        {
+            
+
+            if (!bill.Paid)
+            {
+                CurrentPayperiodBillTotal += bill.Price;
+            }
+        }
+        Balance = await DBHandler.GetBalance(UserID);
+        monthly_current_balance_entry.Text = Balance.ToString();
+        remaining_monthly_balance_label.Text = "$" + (Convert.ToDouble(Income) - CurrentPayperiodBillTotal).ToString();
+        monthly_bill_total_label.Text = "$" + CurrentPayperiodBillTotal.ToString();
+    }
+
+    private void PopulateMonthlyGrid()
+    {
+        current_payperiod_dashboard_grid.IsVisible = false;
+        monthly_balance_grid.IsVisible = true;
+        current_balance_grid.IsVisible = false;
+        remaining_balance_grid.IsVisible = false;
+    }
+
+    private void HideMonthlyGrid()
+    {
+        current_payperiod_dashboard_grid.IsVisible = true;
+        monthly_balance_grid.IsVisible = false;
+        current_balance_grid.IsVisible = true;
+        remaining_balance_grid.IsVisible = false;
     }
 }

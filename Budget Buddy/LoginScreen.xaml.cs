@@ -15,7 +15,6 @@ public partial class LoginScreen : ContentPage
 	{
 		InitializeComponent();
         path = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, sourceFile);
-        WakeLockHelper.AcquireWakeLock(Android.App.Application.Context);
     }
 
     private void Button_Clicked(object sender, EventArgs e)
