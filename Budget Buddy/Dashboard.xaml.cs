@@ -1,4 +1,5 @@
 using Budget_Buddy.Models;
+using Microsoft.VisualBasic;
 using NETCore.Encrypt;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -14,7 +15,10 @@ public partial class Dashboard : ContentPage
     string UserName;
     DateTime DBPayday = new DateTime();
     DateTime ViewPayday = new DateTime();
+    DateTime NextPayday = new DateTime();
+    string PayFrequencyString;
     int PayFrequency = 0;
+    int PayFrequencyIndex = 0;
     List<double> PreferencesList = new List<double>();
     double Income;
     double SavingsPercent;
@@ -23,55 +27,140 @@ public partial class Dashboard : ContentPage
     double CurrentPayperiodBillTotal;
     double SavingsDollarAmount;
     double DebtDollarAmount;
+    int SetDayOne;
+    int SetDayTwo;
+    int PrimaryIncomeId;
 
 
-	public Dashboard(int userID)
+
+    public Dashboard(int userID)
 	{
         InitializeComponent();
 
         UserID = userID;
     }
 
+    private async void CheckUpdatePayday()
+    {
+        int dayDifference = Math.Abs((DBPayday - DateTime.Now).Days);
+
+        Console.WriteLine(PayFrequencyString);
+
+        switch (PayFrequencyString)
+        {
+            //NEED TO DETERMINE HOW MANY DAYS TO SET FORWARD RUN RECURSIVELY??
+            case "Weekly":
+                PayFrequencyIndex = 0;
+                PayFrequency = 6;
+                if(dayDifference >= 7)
+                {
+                    await DBHandler.UpdatePayDay(PrimaryIncomeId, DBPayday.AddDays(Math.Floor((double)dayDifference / 7)));
+                    DBPayday = DBPayday.AddDays(Math.Floor((double)dayDifference/7));
+                    NewPaydayHit();
+                }
+                PopulateCurrentPayPeriodGUI();
+                break;
+
+            case "BiWeekly":
+                PayFrequencyIndex = 1;
+                PayFrequency = 13;
+                if (dayDifference >= 14)
+                {
+                    await DBHandler.UpdatePayDay(PrimaryIncomeId, DBPayday.AddDays(Math.Floor((double)dayDifference / 14)));
+                    DBPayday = DBPayday.AddDays(Math.Floor((double)dayDifference / 14));
+                    NewPaydayHit();
+                }
+                PopulateCurrentPayPeriodGUI();
+                break;
+
+            case "BiMonthly":
+                PayFrequencyIndex = 3;
+                List<int> dayList = await DBHandler.GetSetDays(UserID);
+                SetDayOne = dayList[0];
+                SetDayTwo = dayList[1];
+                Console.WriteLine(DBPayday.ToString());
+                Console.WriteLine(DBPayday.Month);
+                //Current payday is setDayOne
+                if (DBPayday.Day == SetDayOne)
+                {
+
+
+                    if (DateTime.Now.Day >= SetDayTwo && DateTime.Now.Month == DBPayday.Month)
+                    {
+                        //Update to 2nd payday
+                        await DBHandler.UpdatePayDay(PrimaryIncomeId, new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayTwo));
+                        DBPayday = new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayTwo);
+                        NewPaydayHit();
+                    }
+
+
+                }
+
+                
+                else if (DBPayday < DateTime.Now && DBPayday.Month != DateTime.Now.Month)
+                {
+                    //Find which payday was more recent
+                    if (DateTime.Now.Day < SetDayTwo)
+                    {
+                        await DBHandler.UpdatePayDay(PrimaryIncomeId, new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayOne));
+                        DBPayday = new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayOne);
+                        NewPaydayHit();
+                    }
+                    else
+                    {
+                        await DBHandler.UpdatePayDay(PrimaryIncomeId, new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayTwo));
+                        DBPayday = new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayTwo);
+                        NewPaydayHit();
+                    }
+                }
+
+                //Upate Pay Frequency
+                if (DBPayday.Day == SetDayOne)
+                {
+                    PayFrequency = Math.Abs(DBPayday.Day - SetDayTwo);
+                }
+
+                else
+                {
+                    PayFrequency = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) - SetDayTwo + SetDayOne;
+                }
+                PopulateCurrentPayPeriodGUI();
+                break;
+
+            case "Monthly":
+                PayFrequencyIndex = 2;
+
+                if (dayDifference >= DateTime.DaysInMonth(DBPayday.Year, DBPayday.Month))
+                {
+                    await DBHandler.UpdatePayDay(PrimaryIncomeId, DBPayday.AddMonths((int)Math.Floor((double)dayDifference / 30)));
+                    DBPayday = DBPayday.AddDays(Math.Floor((double)dayDifference / 14));
+                    NewPaydayHit();
+                }
+                PopulateCurrentPayPeriodGUI();
+                break;
+                
+        }
+
+
+        ViewPayday = DBPayday;
+    }
+
+    private async void NewPaydayHit()
+    {
+        await DBHandler.UpdateBalance(UserID, Income);
+        DBPayday = await DBHandler.GetPayday(UserID);
+        await DBHandler.RefreshPaidBills(UserID);
+        await DBHandler.ResetSavingsAndDebtPaid(UserID);
+        await DBHandler.RemoveAllTempBills(UserID);
+        RepopulateGUI(UserID);
+    }
+
     private async void PopulateCurrentPayPeriodGUI()
     {
-        other_payperiod_dashboard_grid.IsVisible = false;
-        current_payperiod_dashboard_grid.IsVisible = true;
-        remaining_balance_grid.IsVisible = false;
-        bill_collectionview.ItemsSource = Bill.BillList;
-        tempbill_collectionview.ItemsSource = Bill.TempBillList;
-        recurringbill_collectionview.ItemsSource = Bill.RecurringBillList;
-        current_balance_grid.IsVisible = true;
-        savings_paid_checkbox.IsChecked = await DBHandler.GetSavingsPaid(UserID);
-        debt_paid_checkbox.IsChecked = await DBHandler.GetDebtPaid(UserID);
-        first_name_label.Text = $"Welcome, {UserName}!";
-        first_name_label.HorizontalOptions = LayoutOptions.Center;
-        Balance = await DBHandler.GetBalance(UserID);
-        current_balance_entry.Text = Balance.ToString("N2");
 
-        // Indices as follows  0-Income, 1-Savings Percent, 2-Debt Percent
-        PreferencesList = await DBHandler.GetUserPreferences(UserID);
-        Income = PreferencesList[0];
-        SavingsPercent = PreferencesList[1] / 100;
-        DebtPercent = PreferencesList[2] / 100;
-
-        PayFrequency = await DBHandler.GetPayFrequency(UserID);
-        int dayDifference = Math.Abs(((DateTime)DBPayday - DateTime.Now).Days);
-        if (dayDifference > PayFrequency - 1)
-        {
-            //Update current pay period based on the modulo of the difference in days.
-            await DBHandler.UpdatePayDay(UserID, DBPayday.AddDays(Math.Floor((double)(dayDifference / PayFrequency)) * PayFrequency));
-            await DBHandler.UpdateBalance(UserID, Income);
-            DBPayday = await DBHandler.GetPayday(UserID);
-            await DBHandler.RefreshPaidBills(UserID);
-            await DBHandler.ResetSavingsAndDebtPaid(UserID);
-            await DBHandler.RemoveAllTempBills(UserID);
-
-            await DBHandler.UpdatePayFrequencyForSetDays(UserID);
-
-        }
-        ViewPayday = DBPayday;
-
+        
         await DBHandler.GenerateBills(UserID, DBPayday, DBPayday.AddDays(PayFrequency - 1));
+
 
         payperiod_label.Text = $"{ViewPayday.ToString("MM/dd/yy")} - {ViewPayday.AddDays(PayFrequency - 1).ToString("MM/dd/yy")}";
 
@@ -223,9 +312,32 @@ public partial class Dashboard : ContentPage
 
     private async void ContentPage_Loaded(object sender, EventArgs e)
     {
+        bill_collectionview.ItemsSource = Bill.BillList;
+        tempbill_collectionview.ItemsSource = Bill.TempBillList;
+        recurringbill_collectionview.ItemsSource = Bill.RecurringBillList;
         UserName = await DBHandler.GetNameOfUser(UserID);
         DBPayday = await DBHandler.GetPayday(UserID);
-        PopulateCurrentPayPeriodGUI();
+        other_payperiod_dashboard_grid.IsVisible = false;
+        current_payperiod_dashboard_grid.IsVisible = true;
+        remaining_balance_grid.IsVisible = false;
+        current_balance_grid.IsVisible = true;
+        savings_paid_checkbox.IsChecked = await DBHandler.GetSavingsPaid(UserID);
+        debt_paid_checkbox.IsChecked = await DBHandler.GetDebtPaid(UserID);
+        first_name_label.Text = $"Welcome, {UserName}!";
+        first_name_label.HorizontalOptions = LayoutOptions.Center;
+        Balance = await DBHandler.GetBalance(UserID);
+        current_balance_entry.Text = Balance.ToString("N2");
+
+        // Indices as follows  0-Income, 1-Savings Percent, 2-Debt Percent
+        PreferencesList = await DBHandler.GetUserPreferences(UserID);
+        Income = PreferencesList[0];
+        SavingsPercent = PreferencesList[1] / 100;
+        DebtPercent = PreferencesList[2] / 100;
+        PrimaryIncomeId = (int)PreferencesList[3];
+
+        PayFrequencyString = await DBHandler.GetPayFrequency(UserID);
+
+        CheckUpdatePayday();
     }
 
     private async void current_balance_entry_textchanged(object sender, TextChangedEventArgs e)
@@ -342,9 +454,9 @@ public partial class Dashboard : ContentPage
     private async Task DoMonthlyCalculation()
     {
         int extrapaydays = 1;
-        int index = await DBHandler.GetPayFrequencyIndex(UserID);
+        
 
-        switch (index)
+        switch (PayFrequency)
         {
             case 0:
                 extrapaydays = 3;

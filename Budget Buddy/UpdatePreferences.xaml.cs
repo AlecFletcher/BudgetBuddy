@@ -9,6 +9,7 @@ public partial class UpdatePreferences : ContentPage
     ObservableCollection<Bill> BillList = new ObservableCollection<Bill>();
     int UserID {  get; set; }
     string Purpose;
+    string PayFrequencyString;
 	public UpdatePreferences()
 	{
 		InitializeComponent();
@@ -244,23 +245,36 @@ public partial class UpdatePreferences : ContentPage
                 try
                 {
                     firstDay = Convert.ToInt32(first_date.Text);
-                    Console.WriteLine(firstDay);
 
                     secondDay = Convert.ToInt32(second_date.Text);
-                    Console.WriteLine(secondDay);
 
                     await DBHandler.SetBiMonthlyPaydays(UserID, Convert.ToInt32(first_date.Text), Convert.ToInt32(second_date.Text));
-
+                    await DBHandler.SetBiMonthlyPaydays(UserID, firstDay, secondDay);
                 }
                 catch (Exception ex) { Console.WriteLine("Could not cast"); }
 
                 /////////////// MOVE BACK INTO THE TRY ////////////////////
-                await DBHandler.UpdatePayFrequencyForSetDays(UserID);
+
                 await Navigation.PopAsync();
                 return;
                 ///////////////////////////////////////////////////
         }
-        await DBHandler.UpdateIncomeAndFrequency(UserID, payFrequency, income, recent_payday_datepicker.Date);
+        switch (payFrequency)
+        {
+            case 0:
+                PayFrequencyString = "Weekly";
+                break;
+            case 1:
+                PayFrequencyString = "BiWeekly";
+                break;
+            case 2:
+                PayFrequencyString = "Monthly";
+                break;
+            case 3:
+                PayFrequencyString = "BiMonthly";
+                break;
+        }
+        await DBHandler.UpdateIncomeAndFrequency(UserID, PayFrequencyString, income, recent_payday_datepicker.Date);
         await Navigation.PopAsync();
     }
 
@@ -352,7 +366,25 @@ public partial class UpdatePreferences : ContentPage
             income_grid.IsVisible = true;
             double incomeText = await DBHandler.GetIncome(UserID);
             income_entry.Text = incomeText.ToString();
-            pay_frequency_picker.SelectedIndex = await DBHandler.GetPayFrequencyIndex(UserID);
+            string PayFrequencyString = await DBHandler.GetPayFrequency(UserID);
+            
+            if(PayFrequencyString == "Weekly")
+            {
+                pay_frequency_picker.SelectedIndex = 0;
+            }
+            else if(PayFrequencyString == "BiWeekly")
+            {
+                pay_frequency_picker.SelectedIndex = 1;
+            }
+            else if (PayFrequencyString == "Monthly")
+            {
+                pay_frequency_picker.SelectedIndex = 2;
+            }
+            else
+            {
+                pay_frequency_picker.SelectedIndex = 3;
+            }
+
             recent_payday_datepicker.Date = await DBHandler.GetPayday(UserID);
             if(pay_frequency_picker.SelectedIndex == 3)
             {

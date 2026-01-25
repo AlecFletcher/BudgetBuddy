@@ -41,8 +41,24 @@ public partial class FirstTimeIncomePage : ContentPage
         if (allFieldsAreFull)
         {
             int payFrequency = PayFrequency_Picker.SelectedIndex;
+            string payFrequencyString = "";
+            switch (payFrequency)
+            {
+                case 0:
+                    payFrequencyString = "Weekly";
+                    break;
+                case 1:
+                    payFrequencyString = "BiWeekly";
+                    break;
+                case 2:
+                    payFrequencyString = "Monthly";
+                    break;
+                case 3:
+                    payFrequencyString = "BiMonthly";
+                    break;
+            }
             int currentIncome = (int)Math.Round(Convert.ToDouble(Income_Entry.Text), 0);
-            await DBHandler.UpdateIncomeAndFrequency(UserId, payFrequency, currentIncome, Payday_Datepicker.Date);
+            await DBHandler.UpdateIncomeAndFrequency(UserId, payFrequencyString, currentIncome, Payday_Datepicker.Date);
             FirstTimePreferences firstTimePreferences = new FirstTimePreferences(UserId);
             await Navigation.PushAsync(firstTimePreferences);
         }

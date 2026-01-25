@@ -1,8 +1,9 @@
 ﻿using Budget_Buddy.Models;
-using System.Collections.ObjectModel;
+using Bumptech.Glide.Load;
 using Npgsql;
 using NpgsqlTypes;
-using Bumptech.Glide.Load;
+using System.Collections.ObjectModel;
+using static Java.Util.Jar.Attributes;
 
 namespace Budget_Buddy
 {
@@ -70,25 +71,49 @@ namespace Budget_Buddy
             return result;
         }
 
-
-        //UPDATE TO PUDATE BASED ON ID
-        public static async Task UpdatePayDay(int userId, int incomeid, DateTime currentPayday)
+        public static async Task AddIncome(int userid, bool isRecurring, DateTime payDate, string payFrequency, bool isPrimary, int? setDayOne, int? setDayTwo)
         {
-            await using (var cmd = dataSource.CreateCommand("UPDATE UserPreferences SET CurrentPayday = ($1) WHERE UserID = ($2)"))
+            await using (var command = dataSource.CreateCommand("INSERT INTO Incomes (userid, isrecurring, paydate, payfrequency, isprimary, setdayone, setdaytwo) VALUES(@userid, @isrecurring, @paydate, @payfrequency, @isprimary @setdayone, @setdaytwo,);"))
+            {
+                command.Parameters.AddWithValue("@userid", userid);
+                command.Parameters.AddWithValue("@isrecurring", isRecurring);
+                command.Parameters.AddWithValue("@paydate", payDate);
+                command.Parameters.AddWithValue("@payfrequency", payFrequency);
+                command.Parameters.AddWithValue("@isprimary", isPrimary);
+                if (setDayOne == null || setDayTwo == null)
+                {
+                    command.Parameters.AddWithValue("@setdayone", "null");
+                    command.Parameters.AddWithValue("@setdaytwo", "null");
+                }
+                else
+                {
+                    command.Parameters.AddWithValue("@setdayone", setDayOne);
+                    command.Parameters.AddWithValue("@setdaytwo", setDayTwo);
+                }
+
+
+                    await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        //UPDATE TO PUDATE BASED ON ID --DONE CHANGED
+        public static async Task UpdatePayDay(int incomeid, DateTime currentPayday)
+        {
+            await using (var cmd = dataSource.CreateCommand("UPDATE incomes SET paydate = ($1) WHERE incomeid = ($2)"))
             {
                 cmd.Parameters.AddWithValue(currentPayday);
-                cmd.Parameters.AddWithValue(userId);
+                cmd.Parameters.AddWithValue(incomeid);
                 cmd.ExecuteNonQuery();
             }
         }
 
-        //UPDATE TO ACCOUNT FOR NEW TABLE
-        public static async Task UpdateIncomeAndFrequency(int userId, int frequencyIndex, int income, DateTime recentPayday)
+        //UPDATE TO ACCOUNT FOR NEW TABLE --DONE CHANGED
+        public static async Task UpdateIncomeAndFrequency(int userId, string frequency, int income, DateTime recentPayday)
         {
-            await using (var cmd = dataSource.CreateCommand("UPDATE UserPreferences SET Income = ($1), PayFrequencyIndex = ($2), CurrentPayday = ($3) WHERE UserID = ($4)"))
+            await using (var cmd = dataSource.CreateCommand("UPDATE Incomes SET amount = ($1), payfrequency = ($2), paydate = ($3) WHERE UserID = ($4)"))
             {
                 cmd.Parameters.AddWithValue(income);
-                cmd.Parameters.AddWithValue(frequencyIndex);
+                cmd.Parameters.AddWithValue(frequency);
                 cmd.Parameters.AddWithValue(recentPayday);
                 cmd.Parameters.AddWithValue(userId);
                 cmd.ExecuteNonQuery();
@@ -186,11 +211,11 @@ namespace Budget_Buddy
         }
 
 
-        //UPDATE TO ACCOUNT FOR NEW TABLE
+        //UPDATE TO ACCOUNT FOR NEW TABLE --CHANGED DONE
         public static async Task<DateTime> GetPayday(int userId)
         {
             DateTime currentPayday = new DateTime();
-            await using (var command = dataSource.CreateCommand($"SELECT CurrentPayday FROM UserPreferences WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand($"SELECT paydate FROM incomes WHERE UserID = @userid AND isprimary = true"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -205,6 +230,7 @@ namespace Budget_Buddy
 
 
         //UPDATE TO ACCOUNT FOR NEW TABLE
+        /*
         public static async Task UpdatePayFrequencyForSetDays(int userId)
         {
             int FirstDay;
@@ -295,7 +321,10 @@ namespace Budget_Buddy
             }
         }
 
-        //UPDATE TO ACCOUNT FOR NEW TABLE
+        */
+
+
+        //UPDATE TO ACCOUNT FOR NEW TABLE --CHANGED DONE
         public static async Task SetBiMonthlyPaydays(int userId, int firstDay, int secondDay)
         {
             int FirstDay = 0;
@@ -311,7 +340,7 @@ namespace Budget_Buddy
                 FirstDay = secondDay;
                 SecondDay = firstDay;
             }
-            await using (var command = dataSource.CreateCommand("UPDATE UserPreferences SET firstsetpayday = @FirstDay, secondsetpayday = @SecondDay, payfrequencyindex = 3 WHERE UserID = @userId"))
+            await using (var command = dataSource.CreateCommand("UPDATE incomes SET setdayone = @FirstDay, setdaytwo = @SecondDay, payfrequency = 'BiMonthly' WHERE UserID = @userId"))
             {
                 command.Parameters.AddWithValue("@FirstDay", FirstDay);
                 command.Parameters.AddWithValue("@SecondDay", SecondDay);
@@ -320,28 +349,28 @@ namespace Budget_Buddy
             }
         }
 
-        //UPDATE TO ACCOUNT FOR NEW TABLE
-        public static async Task<int> GetPayFrequency(int userId)
+        //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
+        public static async Task<string> GetPayFrequency(int userId)
         {
-            int result = 0;
-            await using (var command = dataSource.CreateCommand($"SELECT PayFrequency FROM UserPreferences WHERE UserID = @userid"))
+            string result = "";
+            await using (var command = dataSource.CreateCommand($"SELECT PayFrequency FROM incomes WHERE UserID = @userid AND isprimary = true"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
                 await using (var reader = await command.ExecuteReaderAsync())
                 {
                     await reader.ReadAsync();
-                    result = Convert.ToInt32(reader[0]);
+                    result = Convert.ToString(reader[0]);
                 }
                 return result;
             }
         }
 
-        //UPDATE TO ACCOUNT FOR NEW TABLE
+        //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
         public static async Task<List<int>> GetSetDays(int userId)
         {
             List<int> result = new List<int>();
-            await using (var command = dataSource.CreateCommand($"SELECT firstsetpayday, secondsetpayday FROM UserPreferences WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand($"SELECT setdayone, setdaytwo FROM Incomes WHERE UserID = @userid AND isprimary = true"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -355,11 +384,11 @@ namespace Budget_Buddy
             }
         }
 
-        //UPDATE TO ACCOUNT FOR NEW TABLE
+        //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
         public static async Task<List<double>> GetUserPreferences(int userId)
         {
             List<double> result = new List<double>();
-            await using (var command = dataSource.CreateCommand($"SELECT Income, SavingsPercent, DebtPercent FROM UserPreferences WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand($"SELECT incomes.amount, userpreferences.savingspercent, userpreferences.debtpercent, incomes.incomeid from incomes INNER JOIN userpreferences ON userpreferences.userid = incomes.userid where incomes.userid = @userid and isprimary = true "))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -369,6 +398,7 @@ namespace Budget_Buddy
                     result.Add(Convert.ToInt32(reader[0]));
                     result.Add(Convert.ToInt32(reader[1]));
                     result.Add(Convert.ToInt32(reader[2]));
+                    result.Add(Convert.ToInt32(reader[3]));
                 }
                 return result;
             }
@@ -436,10 +466,10 @@ namespace Budget_Buddy
             }
         }
 
-        //UPDATE TO ACCOUNT FOR NEW TABLE
+        //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
         public static async Task<int> GetIncome(int userId)
         {
-            await using (var command = dataSource.CreateCommand("SELECT Income from UserPreferences WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand("SELECT amount from Incomes WHERE UserID = @userid and isprimary = true"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -453,10 +483,10 @@ namespace Budget_Buddy
             }
         }
 
-        //UPDATE TO ACCOUNT FOR NEW TABLE
-        public static async Task<double> GetMonthlyIncome(int userId)
+        //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
+        public static async Task<int> GetMonthlyIncome(int userId)
         {
-            await using (var command = dataSource.CreateCommand("SELECT Income from UserPreferences WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand("select amount, payfrequency from incomes where userid = @userid and isprimary = true"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -464,37 +494,41 @@ namespace Budget_Buddy
                 {
                     await reader.ReadAsync();
                     int value = Convert.ToInt32(reader[0]);
-                    int payFrequency = await GetPayFrequency(userId);
-                    value = value * (30 / payFrequency);
+                    string payFrequency = Convert.ToString(reader[1]);
+                    int payMultiplier = 1;
+                    switch (payFrequency)
+                    {
+                        case "Weekly":
+                            payMultiplier = 4;
+                                break;
+
+                        case "BiWeekly":
+                            payMultiplier = 2;
+                            break;
+
+                        case "BiMonthly":
+                            payMultiplier = 2;
+                            break;
+
+                        case "Monthly":
+                            payMultiplier = 1;
+                            break;
+                    }
+
+                    value = value * payMultiplier;
                     return value;
                 }
             }
         }
 
-        //UPDATE TO ACCOUNT FOR NEW TABLE
-        public static async Task UpdatePayFrequencyIndex(int userId, int payfrequencyindex)
+        //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
+        public static async Task UpdatePayFrequencyIndex(int userId, string payfrequency)
         {
-            await using (var command = dataSource.CreateCommand("UPDATE userpreferences SET payfrequencyindex = @payfrequencyindex WHERE UserId = @userid"))
+            await using (var command = dataSource.CreateCommand("UPDATE incomes SET payfrequency = '@payfrequency' WHERE UserId = @userid AND isprimary = true"))
             {
-                command.Parameters.AddWithValue("@payfrequencyindex", payfrequencyindex);
+                command.Parameters.AddWithValue("@payfrequency", payfrequency);
                 command.Parameters.AddWithValue("@userid", userId);
                 await command.ExecuteNonQueryAsync();
-            }
-        }
-
-        //UPDATE TO ACCOUNT FOR NEW TABLE
-        public static async Task<int> GetPayFrequencyIndex(int userId)
-        {
-            await using (var command = dataSource.CreateCommand("SELECT PayFrequencyIndex from UserPreferences WHERE UserID = @userid"))
-            {
-                command.Parameters.AddWithValue("@userid", userId);
-
-                await using (var reader = await command.ExecuteReaderAsync())
-                {
-                    await reader.ReadAsync();
-                    int frequency = Convert.ToInt32(reader[0]);
-                    return frequency;
-                }
             }
         }
 
@@ -779,7 +813,6 @@ namespace Budget_Buddy
         public static async Task UpdateBalance(int userId, double balance)
         {
             double balanceToAdd = Math.Round(balance, 2);
-            Console.WriteLine(balanceToAdd);
             if(balanceToAdd < 0)
             {
                 balanceToAdd = 0;
