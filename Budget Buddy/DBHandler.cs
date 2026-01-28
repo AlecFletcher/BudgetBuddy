@@ -1,9 +1,7 @@
 ﻿using Budget_Buddy.Models;
-using Bumptech.Glide.Load;
 using Npgsql;
 using NpgsqlTypes;
 using System.Collections.ObjectModel;
-using static Java.Util.Jar.Attributes;
 
 namespace Budget_Buddy
 {

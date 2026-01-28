@@ -312,6 +312,7 @@ public partial class Dashboard : ContentPage
 
     private async void ContentPage_Loaded(object sender, EventArgs e)
     {
+        HideMonthlyGrid();
         bill_collectionview.ItemsSource = Bill.BillList;
         tempbill_collectionview.ItemsSource = Bill.TempBillList;
         recurringbill_collectionview.ItemsSource = Bill.RecurringBillList;
@@ -453,6 +454,7 @@ public partial class Dashboard : ContentPage
 
     private async Task DoMonthlyCalculation()
     {
+        double TempIncome = 0;
         int extrapaydays = 1;
         
 
@@ -475,24 +477,27 @@ public partial class Dashboard : ContentPage
                 break;
         }
 
-        Income = Income * (extrapaydays + 1);
+        TempIncome = Income * (extrapaydays + 1);
         payperiod_label.Text = $"{ViewPayday.ToString("MM/dd/yy")} - {ViewPayday.AddMonths(1).ToString("MM/dd/yy")}";
-        await DBHandler.GenerateBills(UserID, DBPayday, ViewPayday);
+        Console.WriteLine(DBPayday.ToString() + ". " + ViewPayday.ToString());
+        await DBHandler.GenerateBills(UserID, DBPayday, DBPayday.AddMonths(1));
 
         CurrentPayperiodBillTotal = 0;
         foreach (Bill bill in Bill.BillList)
         {
+            CurrentPayperiodBillTotal += bill.Price;
             if (!bill.Paid)
             {
-                CurrentPayperiodBillTotal += bill.Price;
+                
             }
 
         }
         foreach (Bill bill in Bill.TempBillList)
         {
+            CurrentPayperiodBillTotal += bill.Price;
             if (!bill.Paid)
             {
-                CurrentPayperiodBillTotal += bill.Price;
+                
             }
         }
 
@@ -512,24 +517,28 @@ public partial class Dashboard : ContentPage
 
             foreach (Bill bill in Bill.RecurringBillList)
         {
-            
+            CurrentPayperiodBillTotal += bill.Price;
 
             if (!bill.Paid)
             {
-                CurrentPayperiodBillTotal += bill.Price;
+                
             }
         }
         Balance = await DBHandler.GetBalance(UserID);
         monthly_current_balance_entry.Text = Balance.ToString();
-        remaining_monthly_balance_label.Text = "$" + (Convert.ToDouble(Income) - CurrentPayperiodBillTotal).ToString();
         monthly_bill_total_label.Text = "$" + CurrentPayperiodBillTotal.ToString();
+        remaining_monthly_balance_label.Text = "$" + (Convert.ToDouble(TempIncome) - CurrentPayperiodBillTotal).ToString();
+
     }
 
     private void PopulateMonthlyGrid()
     {
+
         current_payperiod_dashboard_grid.IsVisible = false;
         monthly_balance_grid.IsVisible = true;
         current_balance_grid.IsVisible = false;
+        current_balance_label.IsVisible = false;
+        current_balance_entry.IsVisible = false;
         remaining_balance_grid.IsVisible = false;
     }
 
@@ -538,6 +547,8 @@ public partial class Dashboard : ContentPage
         current_payperiod_dashboard_grid.IsVisible = true;
         monthly_balance_grid.IsVisible = false;
         current_balance_grid.IsVisible = true;
+        current_balance_label.IsVisible = true;
+        current_balance_entry.IsVisible = true;
         remaining_balance_grid.IsVisible = false;
     }
 }

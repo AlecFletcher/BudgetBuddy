@@ -26,7 +26,7 @@
                 </Grid>
 
                 <Grid x:Name="current_balance_grid" IsVisible="True" ColumnDefinitions="1*,1*,1*" RowDefinitions="60" Margin="20">
-                    <Label Text="Current Balance: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
+                    <Label x:Name="current_balance_label" Text="Current Balance: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
                     <Entry x:Name="current_balance_entry" Keyboard="Numeric" TextChanged="current_balance_entry_textchanged" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold" ></Entry>
                 </Grid>
 
