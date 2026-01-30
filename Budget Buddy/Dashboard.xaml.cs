@@ -1,6 +1,9 @@
+using Android.Security.Identity;
 using Budget_Buddy.Models;
+using Microcharts;
 using Microsoft.VisualBasic;
 using NETCore.Encrypt;
+using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -540,6 +543,8 @@ public partial class Dashboard : ContentPage
         current_balance_label.IsVisible = false;
         current_balance_entry.IsVisible = false;
         remaining_balance_grid.IsVisible = false;
+
+        MakePieChart();
     }
 
     private void HideMonthlyGrid()
@@ -550,5 +555,31 @@ public partial class Dashboard : ContentPage
         current_balance_label.IsVisible = true;
         current_balance_entry.IsVisible = true;
         remaining_balance_grid.IsVisible = false;
+
+        chartGrid.IsVisible = false;
+    }
+
+    private void MakePieChart()
+    {
+        string[] colors = { "#1f3f5c", "#2670b5", "#5999d4", "#0c2d4d", "#2aa4bd", "#007d96", "#12414a", "#7c61ab", "#462a75", "#1a0440" };
+
+        chartGrid.IsVisible = true;
+        var entries = new[]
+        {
+            new ChartEntry(200) { Label = "Num (Pe%)", ValueLabel = "Leisure", Color = SKColor.Parse(colors[0]) },
+            new ChartEntry(600) { Label = "Num (Pe%)", ValueLabel = "Car", Color = SKColor.Parse(colors[1]) },
+            new ChartEntry(400) { Label = "Num (Pe%)", ValueLabel = "Debt", Color = SKColor.Parse(colors[2]) },
+            new ChartEntry(50) { Label = "Num (Pe%)", ValueLabel = "Entertainment", Color = SKColor.Parse(colors[3]) },
+            new ChartEntry(800) { Label = "Num (Pe%)", ValueLabel = "Rent", Color = SKColor.Parse(colors[4]) },
+            new ChartEntry(100) { Label = "Num (Pe%)", ValueLabel = "Other", Color = SKColor.Parse(colors[5]) },
+        };
+
+        chartView.Chart = new PieChart()
+        {
+            Entries = entries,
+            LabelTextSize = 40,
+            LabelMode = LabelMode.RightOnly,
+            AnimationDuration = TimeSpan.FromSeconds(5.5)
+        };
     }
 }

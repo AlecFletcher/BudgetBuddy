@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
-using CommunityToolkit.Maui;
+﻿using CommunityToolkit.Maui;
+using Microcharts.Maui;
+using Microsoft.Extensions.Logging;
 using Plugin.Maui.Biometric;
 
 namespace Budget_Buddy
@@ -11,6 +12,7 @@ namespace Budget_Buddy
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMicrocharts()
                 .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {

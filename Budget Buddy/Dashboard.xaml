@@ -5,30 +5,31 @@
              Loaded="ContentPage_Loaded"
              xmlns:viewmodels="clr-namespace:Budget_Buddy.Viewmodels"
              xmlns:models="clr-namespace:Budget_Buddy.Models"
+             xmlns:microcharts="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
              NavigationPage.HasBackButton="False">
     <ContentPage.ToolbarItems>
         <ToolbarItem IconImageSource="calendar_symbol.png" Clicked="Calendar_Clicked"></ToolbarItem>
         <ToolbarItem IconImageSource="gear_icon.png" Clicked="ImageButton_Clicked"></ToolbarItem>
     </ContentPage.ToolbarItems>
     <ScrollView Grid.Row="0">
-            <VerticalStackLayout>
-                <Label x:Name="first_name_label" FontSize="40"></Label>
+        <VerticalStackLayout>
+            <Label x:Name="first_name_label" FontSize="40"></Label>
 
-                <Grid ColumnDefinitions="1*, 5*, 1*" RowDefinitions="70" Margin="20,0">
-                    <ImageButton Source="backwards_arrow.png" Clicked="backwards_arrow_clicked" Grid.Column="0"></ImageButton>
-                    <Label Grid.Column="1" x:Name="payperiod_label" FontSize="20" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"></Label>
-                    <ImageButton Source="arrow.png" Clicked="forward_arrow_clicked" Grid.Column="2"></ImageButton>
-                </Grid>
+            <Grid ColumnDefinitions="1*, 5*, 1*" RowDefinitions="70" Margin="20,0">
+                <ImageButton Source="backwards_arrow.png" Clicked="backwards_arrow_clicked" Grid.Column="0"></ImageButton>
+                <Label Grid.Column="1" x:Name="payperiod_label" FontSize="20" FontAttributes="Bold" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"></Label>
+                <ImageButton Source="arrow.png" Clicked="forward_arrow_clicked" Grid.Column="2"></ImageButton>
+            </Grid>
 
-                <Grid x:Name="remaining_balance_grid" IsVisible="False" ColumnDefinitions="1*,1*,1*" RowDefinitions="60" Margin="20">
-                    <Label Text="Remaining Balance: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
-                    <Label x:Name="remaining_balance_label" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold"></Label>
-                </Grid>
+            <Grid x:Name="remaining_balance_grid" IsVisible="False" ColumnDefinitions="1*,1*,1*" RowDefinitions="60" Margin="20">
+                <Label Text="Remaining Balance: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
+                <Label x:Name="remaining_balance_label" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold"></Label>
+            </Grid>
 
-                <Grid x:Name="current_balance_grid" IsVisible="True" ColumnDefinitions="1*,1*,1*" RowDefinitions="60" Margin="20">
-                    <Label x:Name="current_balance_label" Text="Current Balance: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
-                    <Entry x:Name="current_balance_entry" Keyboard="Numeric" TextChanged="current_balance_entry_textchanged" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold" ></Entry>
-                </Grid>
+            <Grid x:Name="current_balance_grid" IsVisible="True" ColumnDefinitions="1*,1*,1*" RowDefinitions="60" Margin="20">
+                <Label x:Name="current_balance_label" Text="Current Balance: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
+                <Entry x:Name="current_balance_entry" Keyboard="Numeric" TextChanged="current_balance_entry_textchanged" Grid.Column="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold" ></Entry>
+            </Grid>
 
             <Grid x:Name="monthly_balance_grid" IsVisible="False" ColumnDefinitions="1*,1*,1*" RowDefinitions="60,60,60" Margin="20">
                 <Label Text="Current Balance: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
@@ -42,33 +43,33 @@
 
             <Grid x:Name="other_payperiod_dashboard_grid" IsVisible="False" x:DataType="viewmodels:DashboardViewModel" ColumnDefinitions="1*,1*,1*" RowDefinitions="40,40,40" Margin="0">
 
-                    <Label Text="Savings:" Grid.Column="1" Grid.Row="0" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
-                    <Label x:Name="other_savings_amount_label" Text="" Grid.Column="2" Grid.Row="0" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
+                <Label Text="Savings:" Grid.Column="1" Grid.Row="0" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
+                <Label x:Name="other_savings_amount_label" Text="" Grid.Column="2" Grid.Row="0" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
 
-                    <Label Text="To Debt:" Grid.Column="1" Grid.Row="1" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
-                    <Label x:Name="other_debt_amount_label" Text="50.25" Grid.Column="2" Grid.Row="1" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
+                <Label Text="To Debt:" Grid.Column="1" Grid.Row="1" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
+                <Label x:Name="other_debt_amount_label" Text="50.25" Grid.Column="2" Grid.Row="1" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
 
-                    <Label Text="Leisure:" Grid.Column="1" Grid.Row="2" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
-                    <Label x:Name="other_leisure_amount_label" Text="50.25" Grid.Column="2" Grid.Row="2" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
+                <Label Text="Leisure:" Grid.Column="1" Grid.Row="2" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
+                <Label x:Name="other_leisure_amount_label" Text="50.25" Grid.Column="2" Grid.Row="2" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
 
-                </Grid>
+            </Grid>
 
-                <Grid x:Name="current_payperiod_dashboard_grid" IsVisible="True" x:DataType="viewmodels:DashboardViewModel" ColumnDefinitions="2*,2*,2*,1*,1*" RowDefinitions="40,40,40" Margin="0">
+            <Grid x:Name="current_payperiod_dashboard_grid" IsVisible="True" x:DataType="viewmodels:DashboardViewModel" ColumnDefinitions="2*,2*,2*,1*,1*" RowDefinitions="40,40,40" Margin="0">
 
-                    <Label Text="Savings:" Grid.Column="1" Grid.Row="0" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
-                    <Label x:Name="current_savings_amount_label" Text="" Grid.Column="2" Grid.Row="0" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
-                    <Label Text="Paid To?" Grid.Column="3" Grid.Row="0" VerticalOptions="Center"></Label>
-                    <CheckBox x:Name="savings_paid_checkbox" Grid.Column="4" Grid.Row="0" CheckedChanged="savings_paid_checkbox_changed" VerticalOptions="Center"></CheckBox>
+                <Label Text="Savings:" Grid.Column="1" Grid.Row="0" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
+                <Label x:Name="current_savings_amount_label" Text="" Grid.Column="2" Grid.Row="0" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
+                <Label Text="Paid To?" Grid.Column="3" Grid.Row="0" VerticalOptions="Center"></Label>
+                <CheckBox x:Name="savings_paid_checkbox" Grid.Column="4" Grid.Row="0" CheckedChanged="savings_paid_checkbox_changed" VerticalOptions="Center"></CheckBox>
 
-                    <Label Text="To Debt:" Grid.Column="1" Grid.Row="1" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
-                    <Label x:Name="current_debt_amount_label" Text="" Grid.Column="2" Grid.Row="1" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
-                    <Label Text="Paid To?" Grid.Column="3" Grid.Row="1" VerticalOptions="Center"></Label>
-                    <CheckBox x:Name="debt_paid_checkbox" Grid.Column="4" Grid.Row="1" CheckedChanged="debt_paid_checkbox_changed" VerticalOptions="Center"></CheckBox>
+                <Label Text="To Debt:" Grid.Column="1" Grid.Row="1" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
+                <Label x:Name="current_debt_amount_label" Text="" Grid.Column="2" Grid.Row="1" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
+                <Label Text="Paid To?" Grid.Column="3" Grid.Row="1" VerticalOptions="Center"></Label>
+                <CheckBox x:Name="debt_paid_checkbox" Grid.Column="4" Grid.Row="1" CheckedChanged="debt_paid_checkbox_changed" VerticalOptions="Center"></CheckBox>
 
-                    <Label Text="Remaining:" Grid.Column="1" Grid.Row="2" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
-                    <Label x:Name="current_leisure_amount_label" Text="" Grid.Column="2" Grid.Row="2" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
+                <Label Text="Remaining:" Grid.Column="1" Grid.Row="2" VerticalTextAlignment="Center" HorizontalOptions="Center" FontSize="18"></Label>
+                <Label x:Name="current_leisure_amount_label" Text="" Grid.Column="2" Grid.Row="2" FontAttributes="Bold" VerticalTextAlignment="Center" HorizontalOptions="Start" FontSize="18"></Label>
 
-                    <ActivityIndicator 
+                <ActivityIndicator 
                     x:Name="loading_icon"
                     Grid.Row="0"
                     Grid.Column="0"
@@ -80,22 +81,27 @@
                     HeightRequest="200"
                     WidthRequest="200"
                     IsRunning="True"/>
-                </Grid>
+            </Grid>
 
-                <Label Text="Bills Due:" Margin="20" FontSize="30"></Label>
+            <Grid x:Name="chartGrid" ColumnDefinitions="20,*,20" RowDefinitions="300" IsVisible="false">
+                <microcharts:ChartView x:Name="chartView" WidthRequest="300" Grid.Column="1"/>
+            </Grid>
 
-                <Grid ColumnDefinitions="1*,4*,1*,2*" Margin="10">
-                    <Label Text="Paid?"  FontSize="16" Grid.Column="0" HorizontalTextAlignment="Center"></Label>
-                    <Label Text="Name"  FontSize="16" Grid.Column="1" HorizontalTextAlignment="Center"></Label>
-                    <Label Text="Date"  FontSize="16" Grid.Column="2" HorizontalTextAlignment="Center"></Label>
-                    <Label Text="Amount"  FontSize="16" Grid.Column="3" HorizontalTextAlignment="Center"></Label>
-                </Grid>
 
-                <CollectionView
+            <Label Text="Bills Due:" Margin="20" FontSize="30"></Label>
+
+            <Grid ColumnDefinitions="1*,4*,1*,2*" Margin="10">
+                <Label Text="Paid?"  FontSize="16" Grid.Column="0" HorizontalTextAlignment="Center"></Label>
+                <Label Text="Name"  FontSize="16" Grid.Column="1" HorizontalTextAlignment="Center"></Label>
+                <Label Text="Date"  FontSize="16" Grid.Column="2" HorizontalTextAlignment="Center"></Label>
+                <Label Text="Amount"  FontSize="16" Grid.Column="3" HorizontalTextAlignment="Center"></Label>
+            </Grid>
+
+            <CollectionView
                 x:Name="bill_collectionview"
                 x:DataType="models:Bill">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
                         <Border StrokeThickness="2" Padding="0,10">
                             <Grid ColumnDefinitions="1*,4*,1*,2*" ColumnSpacing="8" Margin="10,0,10,0">
                                 <CheckBox Grid.Column="0" IsChecked="{Binding Paid, Mode=TwoWay}" CheckedChanged="bill_paid_checkbox_changed" VerticalOptions="Center" HorizontalOptions="Center"></CheckBox>
@@ -104,16 +110,16 @@
                                 <Label Grid.Column="3" Text="{Binding Price, StringFormat='${0}'}" FontSize="20" VerticalOptions="Center" HorizontalOptions="Center"></Label>
                             </Grid>
                         </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
 
-                <CollectionView
+            <CollectionView
                 x:Name="tempbill_collectionview"
                 x:DataType="models:Bill">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
                         <Border StrokeThickness="2" Padding="0,10">
                             <Grid ColumnDefinitions="1*,4*,1*,2*" ColumnSpacing="8" Margin="10,0,10,0">
                                 <CheckBox Grid.Column="0" IsChecked="{Binding Paid, Mode=TwoWay}" CheckedChanged="recurring_bill_paid_checkbox_changed" VerticalOptions="Center" HorizontalOptions="Center"></CheckBox>
@@ -122,15 +128,15 @@
                                 <Label Grid.Column="3" Text="{Binding Price, StringFormat='${0}'}" FontSize="20" VerticalOptions="Center" HorizontalOptions="Center"></Label>
                             </Grid>
                         </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
-                <CollectionView
+            <CollectionView
                 x:Name="recurringbill_collectionview"
                 x:DataType="models:Bill">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
                         <Border StrokeThickness="2" Padding="0,10">
                             <Grid ColumnDefinitions="1*,4*,1*,2*" ColumnSpacing="8" Margin="10,0,10,5">
                                 <CheckBox Grid.Column="0" IsChecked="{Binding Paid, Mode=TwoWay}" CheckedChanged="recurring_bill_paid_checkbox_changed" VerticalOptions="Center" HorizontalOptions="Center"></CheckBox>
@@ -140,11 +146,11 @@
                             </Grid>
                         </Border>
 
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
-            </VerticalStackLayout>
-        </ScrollView>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
 
+    </ScrollView>
 
 </ContentPage>
