@@ -30,6 +30,7 @@ public partial class Dashboard : ContentPage
     double CurrentPayperiodBillTotal;
     double SavingsDollarAmount;
     double DebtDollarAmount;
+    double TempIncome = 0;
     int SetDayOne;
     int SetDayTwo;
     int PrimaryIncomeId;
@@ -457,7 +458,7 @@ public partial class Dashboard : ContentPage
 
     private async Task DoMonthlyCalculation()
     {
-        double TempIncome = 0;
+        TempIncome = 0;
         int extrapaydays = 1;
         
 
@@ -534,7 +535,7 @@ public partial class Dashboard : ContentPage
 
     }
 
-    private void PopulateMonthlyGrid()
+    private async void PopulateMonthlyGrid()
     {
 
         current_payperiod_dashboard_grid.IsVisible = false;
@@ -544,7 +545,7 @@ public partial class Dashboard : ContentPage
         current_balance_entry.IsVisible = false;
         remaining_balance_grid.IsVisible = false;
 
-        MakePieChart();
+        await MakePieChart();
     }
 
     private void HideMonthlyGrid()
@@ -559,20 +560,66 @@ public partial class Dashboard : ContentPage
         chartGrid.IsVisible = false;
     }
 
-    private void MakePieChart()
+    private async Task MakePieChart()
     {
         string[] colors = { "#1f3f5c", "#2670b5", "#5999d4", "#0c2d4d", "#2aa4bd", "#007d96", "#12414a", "#7c61ab", "#462a75", "#1a0440" };
 
-        chartGrid.IsVisible = true;
-        var entries = new[]
+        List<string> categories = await DBHandler.GetCategories(UserID);
+
+        ChartEntry[] entries = new ChartEntry[categories.Count + 1];
+
+        Dictionary<string, double> CategoryPrices = new Dictionary<string, double>();
+
+        double totalBillAmount = 0;
+
+        for (int i = 0; i < categories.Count; i++)
         {
-            new ChartEntry(200) { Label = "Num (Pe%)", ValueLabel = "Leisure", Color = SKColor.Parse(colors[0]) },
-            new ChartEntry(600) { Label = "Num (Pe%)", ValueLabel = "Car", Color = SKColor.Parse(colors[1]) },
-            new ChartEntry(400) { Label = "Num (Pe%)", ValueLabel = "Debt", Color = SKColor.Parse(colors[2]) },
-            new ChartEntry(50) { Label = "Num (Pe%)", ValueLabel = "Entertainment", Color = SKColor.Parse(colors[3]) },
-            new ChartEntry(800) { Label = "Num (Pe%)", ValueLabel = "Rent", Color = SKColor.Parse(colors[4]) },
-            new ChartEntry(100) { Label = "Num (Pe%)", ValueLabel = "Other", Color = SKColor.Parse(colors[5]) },
-        };
+            CategoryPrices.Add(categories[i], 0);
+        }
+
+        CategoryPrices.Add("Other", 0);
+
+        foreach (Bill bill in Bill.BillList)
+        {
+            try { CategoryPrices[bill.Category] += bill.Price;totalBillAmount += bill.Price; }
+            catch(Exception ex)
+            {
+                CategoryPrices["Other"] += bill.Price;
+                totalBillAmount += bill.Price;
+            }
+        }
+
+        foreach (Bill bill in Bill.RecurringBillList)
+        {
+            try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; }
+            catch (Exception ex)
+            {
+                CategoryPrices["Other"] += bill.Price;
+                totalBillAmount += bill.Price;
+            }
+        }
+
+        foreach (Bill bill in Bill.TempBillList)
+        {
+            try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; }
+            catch (Exception ex)
+            {
+                CategoryPrices["Other"] += bill.Price;
+                totalBillAmount += bill.Price;
+            }
+        }
+
+
+        int j = 0;
+        foreach(var entry in CategoryPrices)
+        {
+            entries[j] = new ChartEntry((float)entry.Value) { Label = entry.Key, Color = SKColor.Parse(colors[j]), ValueLabel = $"${entry.Value} ({Math.Round((entry.Value / TempIncome) * 100, 0)}%)"};
+            j++;
+            
+        }
+
+        chartGrid.IsVisible = true;
+
 
         chartView.Chart = new PieChart()
         {

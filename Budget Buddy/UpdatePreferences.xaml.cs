@@ -39,7 +39,7 @@ public partial class UpdatePreferences : ContentPage
 
     private void Add_Bill_Clicked(object sender, EventArgs e)
     {
-        Bill bill = new Bill("",0,1,false);
+        Bill bill = new Bill("",0,1,false, "");
         BillList.Add(bill);
     }
 
@@ -165,7 +165,7 @@ public partial class UpdatePreferences : ContentPage
             //If this is an added bill, add it to DB
             if (bill.BillID == null)
             {
-                await DBHandler.AddBill(UserID, bill.Name, bill.Price, bill.DueDay);
+                await DBHandler.AddBill(UserID, bill.Name, bill.Price, bill.DueDay, bill.Category);
             }
             else
             {

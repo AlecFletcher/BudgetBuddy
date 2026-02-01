@@ -15,7 +15,7 @@ public partial class FirstTimeBills : ContentPage
     private async void ContentPage_Loaded(object sender, EventArgs e)
     {
         Bill.BillList.Clear();
-        Bill bill = new Bill(UserID, "", 0, 1, false);
+        Bill bill = new Bill(UserID, "", 0, 1, false, "");
         Bill.BillList.Add(bill);
         BillListCollectionView.ItemsSource = Bill.BillList;
         Debt.DebtList.Clear();
@@ -70,7 +70,7 @@ public partial class FirstTimeBills : ContentPage
             }
             else
             {
-                await DBHandler.AddBill(UserID, bill.Name, bill.Price, bill.DueDay);
+                await DBHandler.AddBill(UserID, bill.Name, bill.Price, bill.DueDay, bill.Category);
             }
             }
         Dashboard dashboard = new Dashboard(UserID);
@@ -79,7 +79,7 @@ public partial class FirstTimeBills : ContentPage
 
     private void plus_symbol_clicked(object sender, EventArgs e)
     {
-        Bill bill = new Bill(UserID, "", 0, 0, false);
+        Bill bill = new Bill(UserID, "", 0, 0, false, "");
         Bill.BillList.Add(bill);
     }
 

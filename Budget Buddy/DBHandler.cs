@@ -129,14 +129,15 @@ namespace Budget_Buddy
             }
         }
 
-        public static async Task AddBill(int userId, string billName, double billPrice, int billDay)
+        public static async Task AddBill(int userId, string billName, double billPrice, int billDay, string category)
         {
-            await using (var command = dataSource.CreateCommand("INSERT INTO Bills (userid, duedate, price, billname, paid, principalbalance) VALUES (@userid, @billdue, CAST(@billprice AS numeric), @billname, false, null)"))
+            await using (var command = dataSource.CreateCommand("INSERT INTO Bills (userid, duedate, price, billname, paid, principalbalance, category) VALUES (@userid, @billdue, CAST(@billprice AS numeric), @billname, false, null, @category)"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
                 command.Parameters.AddWithValue("@billdue", billDay);
                 command.Parameters.AddWithValue("@billprice", billPrice);
                 command.Parameters.AddWithValue("@billname", billName);
+                command.Parameters.AddWithValue("@category", category);
 
                 await command.ExecuteNonQueryAsync();
             }
@@ -149,7 +150,7 @@ namespace Budget_Buddy
             Bill.RecurringBillList.Clear();
             if (firstDay.Month != lastDay.Month)
             {
-                await using (var command = dataSource.CreateCommand("SELECT BillID, BillName, Price, DueDate, Paid FROM Bills WHERE UserID = @userid AND (DueDate >= @firstday OR DueDate <= @lastday) ORDER BY DueDate ASC"))
+                await using (var command = dataSource.CreateCommand("SELECT BillID, BillName, Price, DueDate, Paid, Category FROM Bills WHERE UserID = @userid AND (DueDate >= @firstday OR DueDate <= @lastday) ORDER BY DueDate ASC"))
                 {
                     command.Parameters.AddWithValue("@userid", userId);
                     command.Parameters.AddWithValue("@firstday", firstDay.Day);
@@ -158,15 +159,24 @@ namespace Budget_Buddy
                     {
                         while (await reader.ReadAsync())
                         {
-                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetInt32(3), reader.GetBoolean(4));
-                            Bill.BillList.Add(bill);
+                            try
+                            {
+                                Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetInt32(3), reader.GetBoolean(4), reader.GetString(5));
+                                Bill.BillList.Add(bill);
+                            }
+                            catch(Exception ex)
+                            {
+                                Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetInt32(3), reader.GetBoolean(4), null);
+                                Bill.BillList.Add(bill);
+                            }
+
                         }
                     }
                 }
             }
             else
             {
-                await using (var command = dataSource.CreateCommand("SELECT BillID, BillName, Price, DueDate, Paid FROM Bills WHERE UserID = @userid AND DueDate >= @firstday AND DueDate <= @lastday ORDER BY DueDate ASC"))
+                await using (var command = dataSource.CreateCommand("SELECT BillID, BillName, Price, DueDate, Paid, Category FROM Bills WHERE UserID = @userid AND DueDate >= @firstday AND DueDate <= @lastday ORDER BY DueDate ASC"))
                 {
                     command.Parameters.AddWithValue("@userid", userId);
                     command.Parameters.AddWithValue("@firstday", firstDay.Day);
@@ -175,34 +185,61 @@ namespace Budget_Buddy
                     {
                         while (await reader.ReadAsync())
                         {
-                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetInt32(3), reader.GetBoolean(4));
-                            Bill.BillList.Add(bill);
+                            try
+                            {
+                                Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetInt32(3), reader.GetBoolean(4), reader.GetString(5));
+                                Bill.BillList.Add(bill);
+                            }
+                            catch (Exception ex)
+                            {
+                                Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetInt32(3), reader.GetBoolean(4), null);
+                                Bill.BillList.Add(bill);
+                            }
+
                         }
                     }
                 }
             }
-            await using (var command = dataSource.CreateCommand("SELECT BillID, BillName, Price, Paid FROM TempBills WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand("SELECT BillID, BillName, Price, Paid, Category FROM TempBills WHERE UserID = @userid"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
                 await using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
-                        Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3));
-                        Bill.TempBillList.Add(bill);
+                        try
+                        {
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), reader.GetString(4));
+                            Bill.TempBillList.Add(bill);
+                        }
+                        catch (Exception ex)
+                        {
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), null);
+                            Bill.TempBillList.Add(bill);
+                        }
+
                     }
                 }
             }
 
-            await using (var command = dataSource.CreateCommand("SELECT BillID, BillName, Price, Paid FROM RecurringBills WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand("SELECT BillID, BillName, Price, Paid, Category FROM RecurringBills WHERE UserID = @userid"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
                 await using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
-                        Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3));
-                        Bill.RecurringBillList.Add(bill);
+                        try
+                        {
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), reader.GetString(4));
+                            Bill.RecurringBillList.Add(bill);
+                        }
+                        catch (Exception ex)
+                        {
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), null);
+                            Bill.RecurringBillList.Add(bill);
+                        }
+
                     }
                 }
             }
@@ -424,7 +461,7 @@ namespace Budget_Buddy
         public static async Task<ObservableCollection<Bill>> GetAllBillsList(int userId)
         {
             ObservableCollection<Bill> bills = new ObservableCollection<Bill>();
-            await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, DueDate, Paid FROM Bills WHERE UserID = @userid AND PrincipalBalance IS NULL ORDER BY DueDate ASC"))
+            await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, DueDate, Paid, Category FROM Bills WHERE UserID = @userid AND PrincipalBalance IS NULL ORDER BY DueDate ASC"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
                 Bill.BillList.Clear();
@@ -432,7 +469,7 @@ namespace Budget_Buddy
                 {
                     while (await reader.ReadAsync())
                     {
-                        Bill bill = new Bill(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), reader[4].ToString() == "1");
+                        Bill bill = new Bill(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), reader[4].ToString() == "1", reader.GetString(5));
                         bills.Add(bill);
                     }
                 }
@@ -715,40 +752,40 @@ namespace Budget_Buddy
         {
             Bill.BillList.Clear();
             ObservableCollection<Bill> bills = new ObservableCollection<Bill>();
-            await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, DueDate, Paid FROM Bills WHERE UserID = @userid ORDER BY DueDate ASC"))
+            await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, DueDate, Paid, Category FROM Bills WHERE UserID = @userid ORDER BY DueDate ASC"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
                 await using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
-                        Bill bill = new Bill(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), reader[4].ToString() == "1");
+                        Bill bill = new Bill(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), reader[4].ToString() == "1", reader.GetString(5));
                         bills.Add(bill);
                     }
                 }
             }
 
-            await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, Paid FROM TempBills WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, Paid, Category FROM TempBills WHERE UserID = @userid"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
                 await using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
-                        Bill bill = new Bill(reader.GetInt32(0), "(Temp bill) " + reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3));
+                        Bill bill = new Bill(reader.GetInt32(0), "(Temp bill) " + reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), reader.GetString(4));
                         bills.Add(bill);
                     }
                 }
             }
 
-            await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, Paid FROM RecurringBills WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, Paid, Category FROM RecurringBills WHERE UserID = @userid"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
                 await using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
-                        Bill bill = new Bill(reader.GetInt32(0), "(Recurring bill) " + reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3)); 
+                        Bill bill = new Bill(reader.GetInt32(0), "(Recurring bill) " + reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), reader.GetString(4)); 
                         bills.Add(bill);
                     }
                 }
@@ -927,7 +964,7 @@ namespace Budget_Buddy
         public static async Task<ObservableCollection<Bill>> GetAllTempBills(int userId)
         {
             ObservableCollection<Bill> bills = new ObservableCollection<Bill>();
-            await using (var command = dataSource.CreateCommand($"SELECT BillId, Billname, price, paid FROM TempBills WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand($"SELECT BillId, Billname, price, paid, category FROM TempBills WHERE UserID = @userid"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -935,8 +972,17 @@ namespace Budget_Buddy
                 {
                     while (reader.Read())
                     {
-                        Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3));
-                        bills.Add(bill);
+                        try
+                        {
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), reader.GetString(4));
+                            bills.Add(bill);
+                        }
+                        catch (Exception ex)
+                        {
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), null);
+                            bills.Add(bill);
+                        }
+
                     }
                 }
             }
@@ -1011,7 +1057,7 @@ namespace Budget_Buddy
         public static async Task<ObservableCollection<Bill>> GetAllRecurringBills(int userId)
         {
             ObservableCollection<Bill> bills = new ObservableCollection<Bill>();
-            await using (var command = dataSource.CreateCommand($"SELECT BillId, Billname, price, paid FROM RecurringBills WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand($"SELECT BillId, Billname, price, paid, category FROM RecurringBills WHERE UserID = @userid"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -1019,13 +1065,100 @@ namespace Budget_Buddy
                 {
                     while (reader.Read())
                     {
-                        Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3));
-                        bills.Add(bill);
+                        try 
+                        {
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), reader.GetString(4));
+                            bills.Add(bill);
+                        }
+                        catch(Exception ex)
+                        {
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), null);
+                            bills.Add(bill);
+                        }
+
                     }
                 }
             }
             return bills;
         }
         #endregion
+
+        public static async Task<List<string>> GetCategories(int userId)
+        {
+            List<string> categories = new List<string>();
+            await using (var command = dataSource.CreateCommand($"SELECT category FROM bills WHERE UserID = @userid and category IS NOT NULL"))
+            {
+                command.Parameters.AddWithValue("@userid", userId);
+
+                await using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (reader.Read())
+                    {
+                        try
+                        {
+                            Console.WriteLine(reader.GetString(0));
+                            if (!categories.Contains(reader.GetString(0)))
+                            {
+                                categories.Add(reader.GetString(0));
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+
+                        }
+                    }
+                }
+            }
+
+            await using (var command = dataSource.CreateCommand($"SELECT category FROM tempbills WHERE UserID = @userid and category IS NOT NULL"))
+            {
+                command.Parameters.AddWithValue("@userid", userId);
+
+                await using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (reader.Read())
+                    {
+                        try
+                        {
+                            Console.WriteLine(reader.GetString(0));
+                            if (!categories.Contains(reader.GetString(0)))
+                            {
+                                categories.Add(reader.GetString(0));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+                }
+            }
+
+            await using (var command = dataSource.CreateCommand($"SELECT category FROM recurringbills WHERE UserID = @userid and category IS NOT NULL"))
+            {
+                command.Parameters.AddWithValue("@userid", userId);
+
+                await using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (reader.Read())
+                    {
+                        try
+                        {
+                            Console.WriteLine(reader.GetString(0));
+                            if (!categories.Contains(reader.GetString(0)))
+                            {
+                                categories.Add(reader.GetString(0));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+                }
+            }
+
+            return categories;
+        }
     }
 }

@@ -20,35 +20,38 @@ namespace Budget_Buddy.Models
         public int DueDay { get; set; }
         public bool Paid {  get; set; }
         public bool Recurring { get; set; }
-
+        public string? Category { get; set; }
         public Bill()
         {
 
         }
-        public Bill(int id, string name, double price, int dueDay, bool paid)
+        public Bill(int id, string name, double price, int dueDay, bool paid, string? category)
         {
             BillID = id;
             Name = name;
             Price = price;
             DueDay = dueDay;
             Paid = paid;
+            Category = category;
         }
 
-        public Bill(string name, double price, int dueDay, bool paid)
+        public Bill(string name, double price, int dueDay, bool paid, string? category)
         {
             BillID = null;
             Name = name;
             Price = price;
             DueDay = dueDay;
             Paid = paid;
+            Category = null;
         }
 
-        public Bill(int id, string name, double price, bool paid)
+        public Bill(int id, string name, double price, bool paid, string? category)
         {
             BillID = id;
             Name = name;
             Price = price;
             Paid = paid;
+            Category = category;
         }
 
         public Bill(string name, double price)
