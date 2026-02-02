@@ -231,6 +231,7 @@ namespace Budget_Buddy
                     {
                         try
                         {
+
                             Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), reader.GetString(4));
                             Bill.RecurringBillList.Add(bill);
                         }
@@ -1096,7 +1097,6 @@ namespace Budget_Buddy
                     {
                         try
                         {
-                            Console.WriteLine(reader.GetString(0));
                             if (!categories.Contains(reader.GetString(0)))
                             {
                                 categories.Add(reader.GetString(0));
@@ -1120,7 +1120,6 @@ namespace Budget_Buddy
                     {
                         try
                         {
-                            Console.WriteLine(reader.GetString(0));
                             if (!categories.Contains(reader.GetString(0)))
                             {
                                 categories.Add(reader.GetString(0));
@@ -1144,7 +1143,6 @@ namespace Budget_Buddy
                     {
                         try
                         {
-                            Console.WriteLine(reader.GetString(0));
                             if (!categories.Contains(reader.GetString(0)))
                             {
                                 categories.Add(reader.GetString(0));

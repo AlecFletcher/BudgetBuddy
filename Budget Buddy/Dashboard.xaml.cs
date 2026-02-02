@@ -1,9 +1,9 @@
 using Android.Security.Identity;
 using Budget_Buddy.Models;
 using Microcharts;
+using SkiaSharp;
 using Microsoft.VisualBasic;
 using NETCore.Encrypt;
-using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -48,7 +48,6 @@ public partial class Dashboard : ContentPage
     {
         int dayDifference = Math.Abs((DBPayday - DateTime.Now).Days);
 
-        Console.WriteLine(PayFrequencyString);
 
         switch (PayFrequencyString)
         {
@@ -82,8 +81,6 @@ public partial class Dashboard : ContentPage
                 List<int> dayList = await DBHandler.GetSetDays(UserID);
                 SetDayOne = dayList[0];
                 SetDayTwo = dayList[1];
-                Console.WriteLine(DBPayday.ToString());
-                Console.WriteLine(DBPayday.Month);
                 //Current payday is setDayOne
                 if (DBPayday.Day == SetDayOne)
                 {
@@ -483,7 +480,6 @@ public partial class Dashboard : ContentPage
 
         TempIncome = Income * (extrapaydays + 1);
         payperiod_label.Text = $"{ViewPayday.ToString("MM/dd/yy")} - {ViewPayday.AddMonths(1).ToString("MM/dd/yy")}";
-        Console.WriteLine(DBPayday.ToString() + ". " + ViewPayday.ToString());
         await DBHandler.GenerateBills(UserID, DBPayday, DBPayday.AddMonths(1));
 
         CurrentPayperiodBillTotal = 0;
@@ -591,6 +587,7 @@ public partial class Dashboard : ContentPage
 
         foreach (Bill bill in Bill.RecurringBillList)
         {
+            Console.WriteLine(bill.Name + " " + bill.Price);
             try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; }
             catch (Exception ex)
             {
@@ -610,23 +607,37 @@ public partial class Dashboard : ContentPage
         }
 
 
+        //Assign Colors Based on Dark mode / light mode
+        string LabelColorString = "#404040";
+        string ValueColorString = "#141414";
+        string BackgroundColorString = "#FFFFFF";
+        if (Application.Current.RequestedTheme == AppTheme.Dark)
+        {
+            ValueColorString = "#E1E1E1";
+            LabelColorString = "#def1ff";
+            BackgroundColorString = "#1f1f1f";
+        }
+
         int j = 0;
         foreach(var entry in CategoryPrices)
         {
-            entries[j] = new ChartEntry((float)entry.Value) { Label = entry.Key, Color = SKColor.Parse(colors[j]), ValueLabel = $"${entry.Value} ({Math.Round((entry.Value / TempIncome) * 100, 0)}%)"};
+            entries[j] = new ChartEntry((float)entry.Value) { Label = entry.Key, Color = SKColor.Parse(colors[j]), ValueLabelColor = SKColor.Parse(ValueColorString), ValueLabel = $"${entry.Value} ({Math.Round((entry.Value / TempIncome) * 100, 0)}%)"};
             j++;
             
         }
 
         chartGrid.IsVisible = true;
 
-
         chartView.Chart = new PieChart()
         {
             Entries = entries,
             LabelTextSize = 40,
             LabelMode = LabelMode.RightOnly,
-            AnimationDuration = TimeSpan.FromSeconds(5.5)
+            LabelColor = SKColor.Parse(LabelColorString),
+            AnimationDuration = TimeSpan.FromSeconds(3.5),
+            BackgroundColor = SKColor.Parse(BackgroundColorString)
         };
+
+
     }
 }

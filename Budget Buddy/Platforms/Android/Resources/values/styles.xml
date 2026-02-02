@@ -30,7 +30,7 @@
     <style name="Maui.SplashTheme" parent="Maui.MainTheme.NoActionBar">
 		<item name="android:windowIsTranslucent">false</item>
 		<!--<item name="android:windowSplashScreenAnimationDuration">1000</item> -->
-        <item name="maui_splash">true</item>
+        <item name="maui_splash">false</item>
         <item name="android:windowBackground">@drawable/maui_splash</item>
         <!--
           Android 12+ specific settings
