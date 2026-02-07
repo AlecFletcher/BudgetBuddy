@@ -438,19 +438,70 @@ public partial class Dashboard : ContentPage
         return UserID;
     }
 
-    private async void Calendar_Clicked(object sender, EventArgs e)
+    private void Calendar_Clicked(object sender, EventArgs e)
     {
-        if (current_payperiod_dashboard_grid.IsVisible)
+        if (calendarGrid.IsVisible)
         {
-            PopulateMonthlyGrid();
-            await DoMonthlyCalculation();
+            calendarGrid.IsVisible = false;
         }
         else
         {
-            HideMonthlyGrid();
-            PopulateCurrentPayPeriodGUI();
-        }
+            calendarGrid.IsVisible = true;
+            //Sunday = 0, Monday = 1, Tuesday = 2, etc.
 
+            int dayOfWeek = Convert.ToInt32(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).DayOfWeek);
+            int daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
+            for (int k = 0; k < dayOfWeek; k++)
+            {
+                Grid grid = new Grid()
+                {
+                    RowDefinitions =
+                {
+                new RowDefinition { Height = GridLength.Star}
+                },
+                    ColumnDefinitions =
+                {
+                new ColumnDefinition { Width = GridLength.Star}
+                }
+
+                };
+                grid.BackgroundColor = Colors.Blue;
+                calendarGrid.Add(grid, k, 0);
+            }
+
+            /*
+            for (int i = dayOfWeek; i <= daysInMonth; i++)
+            {
+                for(int j = 0; j < 7; j++)
+                {
+                    Grid grid = new Grid()
+                    {
+                        RowDefinitions =
+                    {
+                    new RowDefinition { Height = new GridLength(30)},
+                    new RowDefinition { Height = GridLength.Star}
+                    },
+                        ColumnDefinitions =
+                    {
+                    new ColumnDefinition { Width = new GridLength(30)},
+                    new ColumnDefinition { Width = GridLength.Star}
+                    }
+
+                    };
+                    Label dayLabel = new Label()
+                    {
+                        Text = i.ToString()
+                    };
+
+                    grid.Add(dayLabel,0,0);
+                    grid.BackgroundColor = Colors.White;
+                    calendarGrid.Add(grid, i, j);
+                }
+
+            }
+            */
+
+        }
     }
 
     private async Task DoMonthlyCalculation()
@@ -639,5 +690,19 @@ public partial class Dashboard : ContentPage
         };
 
 
+    }
+
+    private async void Pie_Chart_Clicked(object sender, EventArgs e)
+    {
+        if (current_payperiod_dashboard_grid.IsVisible)
+        {
+            PopulateMonthlyGrid();
+            await DoMonthlyCalculation();
+        }
+        else
+        {
+            HideMonthlyGrid();
+            PopulateCurrentPayPeriodGUI();
+        }
     }
 }

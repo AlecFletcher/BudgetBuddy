@@ -9,6 +9,7 @@
              NavigationPage.HasBackButton="False">
     <ContentPage.ToolbarItems>
         <ToolbarItem IconImageSource="calendar_symbol.png" Clicked="Calendar_Clicked"></ToolbarItem>
+        <ToolbarItem IconImageSource="pie_chart.png" Clicked="Pie_Chart_Clicked"></ToolbarItem>
         <ToolbarItem IconImageSource="gear_icon.png" Clicked="ImageButton_Clicked"></ToolbarItem>
     </ContentPage.ToolbarItems>
     <ScrollView Grid.Row="0">
@@ -88,6 +89,11 @@
             </Grid>
 
 
+            <Grid IsVisible="false" x:Name="calendarGrid" ColumnDefinitions="*,*,*,*,*,*,*" RowDefinitions="150,150,150,150,150,150" BackgroundColor="DarkGrey" ColumnSpacing="5" RowSpacing="5">
+                
+            </Grid>
+            
+            
             <Label Text="Bills Due:" Margin="20" FontSize="30"></Label>
 
             <Grid ColumnDefinitions="1*,4*,1*,2*" Margin="10">
