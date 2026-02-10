@@ -465,19 +465,26 @@ namespace Budget_Buddy
             await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, DueDate, Paid, Category FROM Bills WHERE UserID = @userid AND PrincipalBalance IS NULL ORDER BY DueDate ASC"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
-                Bill.BillList.Clear();
                 await using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
-                        Bill bill = new Bill(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), reader[4].ToString() == "1", reader.GetString(5));
-                        bills.Add(bill);
+                        try
+                        {
+                            Bill bill = new Bill(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), reader[4].ToString() == "1", reader.GetString(5));
+                            bills.Add(bill);
+                        }
+                        catch(Exception ex)
+                        {
+                            Bill bill = new Bill(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), reader[4].ToString() == "1", "Other");
+                            bills.Add(bill);
+                        }
+
                     }
+
                 }
-
-                return bills;
             }
-
+            return bills;
         }
 
         public static async Task RemoveBill(Bill bill)
@@ -702,15 +709,23 @@ namespace Budget_Buddy
         public static async Task<ObservableCollection<Debt>> GenerateDebtList(int userId)
         {
             ObservableCollection<Debt> debts = new ObservableCollection<Debt>();
-            await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, DueDate, PrincipalBalance FROM Bills WHERE UserID = @userid AND PrincipalBalance IS NOT NULL"))
+            await using (var command = dataSource.CreateCommand($"SELECT BillID, BillName, Price, DueDate, PrincipalBalance, Category FROM Bills WHERE UserID = @userid AND PrincipalBalance IS NOT NULL"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
                 await using (var reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
-                        Debt debt = new Debt(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), Convert.ToDouble(reader[4]));
-                        debts.Add(debt);
+                        try
+                        {
+                            Debt debt = new Debt(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), Convert.ToDouble(reader[4]), Convert.ToString(5));
+                            debts.Add(debt);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debt debt = new Debt(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), Convert.ToDouble(reader[4]), "Other");
+                            debts.Add(debt);
+                        }
                     }
                 }
                 return debts;
@@ -980,7 +995,7 @@ namespace Budget_Buddy
                         }
                         catch (Exception ex)
                         {
-                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), null);
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), "Other");
                             bills.Add(bill);
                         }
 
@@ -1073,7 +1088,7 @@ namespace Budget_Buddy
                         }
                         catch(Exception ex)
                         {
-                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), null);
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), "Other");
                             bills.Add(bill);
                         }
 

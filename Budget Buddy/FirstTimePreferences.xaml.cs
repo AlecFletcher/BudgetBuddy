@@ -174,7 +174,7 @@ public partial class FirstTimePreferences : ContentPage
 
     private void Add_Debt_Button_Clicked(object sender, EventArgs e)
     {
-        Debt debt = new Debt("", 0, 0, 1);
+        Debt debt = new Debt("", 0, 0, 1,"");
         Debt.DebtList.Add(debt);
     }
 

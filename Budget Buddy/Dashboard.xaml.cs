@@ -537,6 +537,10 @@ public partial class Dashboard : ContentPage
         foreach (Bill bill in Bill.BillList)
         {
             CurrentPayperiodBillTotal += bill.Price;
+            if(bill.DueDay < DateTime.Now.Day)
+            {
+                bill.Paid = true;
+            }
             if (!bill.Paid)
             {
                 
@@ -546,27 +550,32 @@ public partial class Dashboard : ContentPage
         foreach (Bill bill in Bill.TempBillList)
         {
             CurrentPayperiodBillTotal += bill.Price;
+            if (bill.DueDay < DateTime.Now.Day)
+            {
+                bill.Paid = true;
+            }
             if (!bill.Paid)
             {
                 
             }
         }
-
-        if(extrapaydays > 0)
+        List<Bill> tempList = Bill.RecurringBillList.ToList();
+        if (extrapaydays > 0)
         {
-            List<Bill> tempList = Bill.RecurringBillList.ToList();
+
             for (int i = 0; i < extrapaydays; i++)
             {
-                foreach (Bill bill in tempList) 
+                foreach (Bill bill in Bill.RecurringBillList) 
                 {
-                    Bill.RecurringBillList.Add(bill);
+                    bill.Paid = false;
+                    tempList.Add(bill);
                 }
             }
         }
 
         
 
-            foreach (Bill bill in Bill.RecurringBillList)
+            foreach (Bill bill in tempList)
         {
             CurrentPayperiodBillTotal += bill.Price;
 

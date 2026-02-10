@@ -66,22 +66,31 @@ namespace Budget_Buddy.Models
     {
         public static ObservableCollection<Debt> DebtList = new ObservableCollection<Debt>();
         public double PrincipalBalance { get; set; }
-        public Debt(string name, double balanceDue, double minimumPayment, int dueday)
+        public Debt(string name, double balanceDue, double minimumPayment, int dueday, string? category)
         {
             BillID = null;
             Name = name;
             PrincipalBalance = balanceDue;
             Price = minimumPayment;
             DueDay = dueday;
+
         }
 
-        public Debt(int debtId, string name, double minimumPayment, int dueday, double balanceDue )
+        public Debt(int debtId, string name, double minimumPayment, int dueday, double balanceDue, string? category )
         {
             BillID = debtId;
             Name = name;
             PrincipalBalance = balanceDue;
             Price = minimumPayment;
             DueDay = dueday;
+            if (category != null)
+            {
+                Category = category;
+            }
+            else
+            {
+                Category = "Other";
+            }
         }
     }
 }
