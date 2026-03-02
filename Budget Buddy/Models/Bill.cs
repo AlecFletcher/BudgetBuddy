@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Android.Webkit;
 
 namespace Budget_Buddy.Models
 {
@@ -14,6 +15,7 @@ namespace Budget_Buddy.Models
         public static ObservableCollection<Bill> BillList = new ObservableCollection<Bill>();
         public static ObservableCollection<Bill> TempBillList = new ObservableCollection<Bill>();
         public static ObservableCollection<Bill> RecurringBillList = new ObservableCollection<Bill>();
+        public static List<string> AllCategories { get; set; } =  new List<string>();
         public int? BillID {  get; set; }
         public string Name { get; set; }
         public double Price { get; set; }

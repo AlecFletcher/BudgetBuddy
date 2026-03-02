@@ -94,20 +94,34 @@ public partial class Dashboard : ContentPage
                         NewPaydayHit();
                     }
 
-
+                    else if(DateTime.Now.Month > DBPayday.Month)
+                    {
+                        if(DateTime.Now.Day < SetDayOne || DateTime.Now.Day > SetDayTwo)
+                        {
+                            await DBHandler.UpdatePayDay(PrimaryIncomeId, new DateTime(DateTime.Now.Year, DateTime.Now.Month - 1, SetDayTwo));
+                            DBPayday = new DateTime(DateTime.Now.Year, DateTime.Now.Month - 1, SetDayTwo);
+                            NewPaydayHit();
+                        }
+                        else
+                        {
+                            await DBHandler.UpdatePayDay(PrimaryIncomeId, new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayOne));
+                            DBPayday = new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayOne);
+                            NewPaydayHit();
+                        }
+                    }
                 }
 
                 
                 else if (DBPayday < DateTime.Now && DBPayday.Month != DateTime.Now.Month)
                 {
                     //Find which payday was more recent
-                    if (DateTime.Now.Day < SetDayTwo)
+                    if (DateTime.Now.Day < SetDayTwo && DateTime.Now.Day > SetDayOne)
                     {
                         await DBHandler.UpdatePayDay(PrimaryIncomeId, new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayOne));
                         DBPayday = new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayOne);
                         NewPaydayHit();
                     }
-                    else
+                    else if(DateTime.Now.Day > SetDayTwo)
                     {
                         await DBHandler.UpdatePayDay(PrimaryIncomeId, new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayTwo));
                         DBPayday = new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayTwo);
@@ -123,7 +137,7 @@ public partial class Dashboard : ContentPage
 
                 else
                 {
-                    PayFrequency = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month) - SetDayTwo + SetDayOne;
+                    PayFrequency = DateTime.DaysInMonth(DateTime.Now.Year, DBPayday.Month) - SetDayTwo + SetDayOne;
                 }
                 PopulateCurrentPayPeriodGUI();
                 break;
@@ -153,7 +167,7 @@ public partial class Dashboard : ContentPage
         await DBHandler.RefreshPaidBills(UserID);
         await DBHandler.ResetSavingsAndDebtPaid(UserID);
         await DBHandler.RemoveAllTempBills(UserID);
-        RepopulateGUI(UserID);
+        PopulateCurrentPayPeriodGUI();
     }
 
     private async void PopulateCurrentPayPeriodGUI()
@@ -314,6 +328,7 @@ public partial class Dashboard : ContentPage
     private async void ContentPage_Loaded(object sender, EventArgs e)
     {
         HideMonthlyGrid();
+        Bill.AllCategories = await DBHandler.GetCategories(UserID);
         bill_collectionview.ItemsSource = Bill.BillList;
         tempbill_collectionview.ItemsSource = Bill.TempBillList;
         recurringbill_collectionview.ItemsSource = Bill.RecurringBillList;
@@ -568,7 +583,8 @@ public partial class Dashboard : ContentPage
                 foreach (Bill bill in Bill.RecurringBillList) 
                 {
                     bill.Paid = false;
-                    tempList.Add(bill);
+                    Bill tempBill = bill;
+                    tempList.Add(tempBill);
                 }
             }
         }
@@ -593,7 +609,9 @@ public partial class Dashboard : ContentPage
 
     private async void PopulateMonthlyGrid()
     {
-
+        first_name_label.Text = "Here's your monthly breakdown!";
+        first_name_label.HorizontalOptions = LayoutOptions.Center;
+        nav_bar_grid.IsVisible = false;
         current_payperiod_dashboard_grid.IsVisible = false;
         monthly_balance_grid.IsVisible = true;
         current_balance_grid.IsVisible = false;
@@ -606,6 +624,9 @@ public partial class Dashboard : ContentPage
 
     private void HideMonthlyGrid()
     {
+        first_name_label.Text = $"Welcome, {UserName}!";
+        first_name_label.HorizontalOptions = LayoutOptions.Center;
+        nav_bar_grid.IsVisible = true;
         current_payperiod_dashboard_grid.IsVisible = true;
         monthly_balance_grid.IsVisible = false;
         current_balance_grid.IsVisible = true;
