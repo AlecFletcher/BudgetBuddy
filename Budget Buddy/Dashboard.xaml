@@ -89,7 +89,7 @@
             </Grid>
 
 
-            <Grid IsVisible="false" x:Name="calendarGrid" ColumnDefinitions="*,*,*,*,*,*,*" RowDefinitions="150,150,150,150,150,150" BackgroundColor="DarkGrey" ColumnSpacing="5" RowSpacing="5">
+            <Grid IsVisible="false" x:Name="calendarGrid" ColumnDefinitions="*,*,*,*,*,*,*" RowDefinitions="150,150,150,150" BackgroundColor="DarkGrey" ColumnSpacing="5" RowSpacing="5">
                 
             </Grid>
             

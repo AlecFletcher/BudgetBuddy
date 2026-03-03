@@ -466,23 +466,47 @@ public partial class Dashboard : ContentPage
 
             int dayOfWeek = Convert.ToInt32(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).DayOfWeek);
             int daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
-            for (int k = 0; k < dayOfWeek; k++)
+
+
+            if (dayOfWeek + daysInMonth > 28)
             {
-                Grid grid = new Grid()
+                calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
+            }
+
+            if (dayOfWeek + daysInMonth > 35)
+            {
+                calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
+            }
+
+
+                for (int j = dayOfWeek; j < daysInMonth + dayOfWeek; j++)
                 {
-                    RowDefinitions =
+                    Grid grid = new Grid()
+                    {
+                        RowDefinitions =
+            {
+                new RowDefinition { Height = new GridLength(30) },
+                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }
+            },
+                        ColumnDefinitions =
                 {
-                new RowDefinition { Height = GridLength.Star}
-                },
-                    ColumnDefinitions =
-                {
-                new ColumnDefinition { Width = GridLength.Star}
+                new ColumnDefinition {Width = new GridLength(30)},
+                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
+
                 }
 
+
+                    };
+                    grid.BackgroundColor = Colors.WhiteSmoke;
+                Label label = new Label
+                {
+                    TextColor = Colors.Black,
+                    Text = $" {(j - dayOfWeek + 1).ToString()}"
                 };
-                grid.BackgroundColor = Colors.Blue;
-                calendarGrid.Add(grid, k, 0);
-            }
+                    grid.Add(label, 0, 0);
+                    calendarGrid.Add(grid, j % 7, (int)Math.Floor((double)j / 7));
+                }
+
 
             /*
             for (int i = dayOfWeek; i <= daysInMonth; i++)
