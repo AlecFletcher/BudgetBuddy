@@ -511,11 +511,10 @@ public partial class Dashboard : ContentPage
                     RowDefinitions =
             {
                 new RowDefinition { Height = new GridLength(30) },
-                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }
+                new RowDefinition { Height = new GridLength(2, GridUnitType.Star) }
             },
                     ColumnDefinitions =
                 {
-                new ColumnDefinition {Width = new GridLength(30)},
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
 
                 },
@@ -543,6 +542,13 @@ public partial class Dashboard : ContentPage
                     TextColor = Colors.Black,
                     Text = $" {(j - dayOfWeek + 1).ToString()}"
                 };
+                Label label2 = new Label
+                {
+                    TextColor = Colors.Black,
+                    FontSize = 10,
+                    Text = $"1 Income",
+                    HorizontalTextAlignment = TextAlignment.Center
+                };
 
                 var tapGesture = new TapGestureRecognizer();
                 tapGesture.Tapped += (s, e) =>
@@ -551,6 +557,7 @@ public partial class Dashboard : ContentPage
                 };
                 grid.GestureRecognizers.Add(tapGesture);
                     grid.Add(label, 0, 0);
+                    grid.Add(label2, 0, 1);
                     calendarGrid.Add(grid, j % 7, (int)Math.Floor((double)j / 7));
                 }
 
