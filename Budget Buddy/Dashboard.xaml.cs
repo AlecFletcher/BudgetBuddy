@@ -453,14 +453,39 @@ public partial class Dashboard : ContentPage
         return UserID;
     }
 
+    private void Calendar_Item_Clicked(object sender, EventArgs e)
+    {
+        if(sender != null)
+        {
+            Grid grid = sender as Grid;
+            Console.WriteLine(grid.StyleId);
+        }
+
+    }
+
     private void Calendar_Clicked(object sender, EventArgs e)
     {
         if (calendarGrid.IsVisible)
         {
             calendarGrid.IsVisible = false;
+            Console.WriteLine("Row Definition Count: " + calendarGrid.RowDefinitions.Count.ToString());
+            if (calendarGrid.RowDefinitions.Count > 4)
+            {
+                int lastRowIndex = calendarGrid.RowDefinitions.Count - 1;
+                for (int i = lastRowIndex; i >= 4 ; i--)
+                {
+                    Console.WriteLine("Last Row Index deleted: " + lastRowIndex.ToString());
+                    calendarGrid.RowDefinitions.RemoveAt(lastRowIndex);
+                }
+
+            }
         }
         else
         {
+            first_name_label.Text = "Check your monthly breakdown!";
+            first_name_label.HorizontalOptions = LayoutOptions.Center;
+            nav_bar_grid.IsVisible = false;
+            current_payperiod_dashboard_grid.IsVisible = false;
             calendarGrid.IsVisible = true;
             //Sunday = 0, Monday = 1, Tuesday = 2, etc.
 
@@ -481,64 +506,54 @@ public partial class Dashboard : ContentPage
 
                 for (int j = dayOfWeek; j < daysInMonth + dayOfWeek; j++)
                 {
-                    Grid grid = new Grid()
-                    {
-                        RowDefinitions =
+                Grid grid = new Grid()
+                {
+                    RowDefinitions =
             {
                 new RowDefinition { Height = new GridLength(30) },
                 new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }
             },
-                        ColumnDefinitions =
+                    ColumnDefinitions =
                 {
                 new ColumnDefinition {Width = new GridLength(30)},
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
 
+                },
+                    //Assign StyleId so object can be addressed later
+                    StyleId = (j - dayOfWeek + 1).ToString()
+
+
+                };
+
+                    //Assign background color to light blue for current day
+                    if(grid.StyleId == DateTime.Now.Day.ToString())
+                {
+                    grid.BackgroundColor = Colors.LightBlue;
+                }
+                else
+                {
+                    grid.BackgroundColor = Colors.WhiteSmoke;
                 }
 
 
-                    };
-                    grid.BackgroundColor = Colors.WhiteSmoke;
+
+                    //Assign Label with the day of the month
                 Label label = new Label
                 {
                     TextColor = Colors.Black,
                     Text = $" {(j - dayOfWeek + 1).ToString()}"
                 };
+
+                var tapGesture = new TapGestureRecognizer();
+                tapGesture.Tapped += (s, e) =>
+                {
+                    Calendar_Item_Clicked(s, e);
+                };
+                grid.GestureRecognizers.Add(tapGesture);
                     grid.Add(label, 0, 0);
                     calendarGrid.Add(grid, j % 7, (int)Math.Floor((double)j / 7));
                 }
 
-
-            /*
-            for (int i = dayOfWeek; i <= daysInMonth; i++)
-            {
-                for(int j = 0; j < 7; j++)
-                {
-                    Grid grid = new Grid()
-                    {
-                        RowDefinitions =
-                    {
-                    new RowDefinition { Height = new GridLength(30)},
-                    new RowDefinition { Height = GridLength.Star}
-                    },
-                        ColumnDefinitions =
-                    {
-                    new ColumnDefinition { Width = new GridLength(30)},
-                    new ColumnDefinition { Width = GridLength.Star}
-                    }
-
-                    };
-                    Label dayLabel = new Label()
-                    {
-                        Text = i.ToString()
-                    };
-
-                    grid.Add(dayLabel,0,0);
-                    grid.BackgroundColor = Colors.White;
-                    calendarGrid.Add(grid, i, j);
-                }
-
-            }
-            */
 
         }
     }
