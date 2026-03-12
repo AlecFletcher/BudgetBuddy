@@ -1,5 +1,6 @@
 
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Budget_Buddy;
 
@@ -68,5 +69,11 @@ public partial class PreferencesPage : ContentPage
         {
             await Navigation.PopToRootAsync();
         }
+    }
+
+    private async void Add_Category_Button_Clicked(object sender, EventArgs e)
+    {
+        AddCategory addCategory = new AddCategory();
+        await Navigation.PushAsync(addCategory);
     }
 }

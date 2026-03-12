@@ -687,7 +687,7 @@ public partial class Dashboard : ContentPage
     {
         string[] colors = { "#1f3f5c", "#2670b5", "#5999d4", "#0c2d4d", "#2aa4bd", "#007d96", "#12414a", "#7c61ab", "#462a75", "#1a0440" };
 
-        List<string> categories = await DBHandler.GetCategories(UserID);
+        ObservableCollection<string> categories = Bill.AllCategories;
 
         ChartEntry[] entries = new ChartEntry[categories.Count + 1];
 

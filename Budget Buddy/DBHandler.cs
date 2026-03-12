@@ -1,4 +1,5 @@
 ﻿using Budget_Buddy.Models;
+using CommunityToolkit.Maui.Core.Extensions;
 using Npgsql;
 using NpgsqlTypes;
 using System.Collections.ObjectModel;
@@ -1099,10 +1100,10 @@ namespace Budget_Buddy
         }
         #endregion
 
-        public static async Task<List<string>> GetCategories(int userId)
+        public static async Task<ObservableCollection<string>> GetCategories(int userId)
         {
-            List<string> categories = new List<string>();
-            await using (var command = dataSource.CreateCommand($"SELECT category FROM bills WHERE UserID = @userid and category IS NOT NULL"))
+            ObservableCollection<string> categories = new ObservableCollection<string>();
+            await using (var command = dataSource.CreateCommand($"SELECT DISTINCT category FROM bills WHERE UserID = @userid and category IS NOT NULL"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -1112,10 +1113,7 @@ namespace Budget_Buddy
                     {
                         try
                         {
-                            if (!categories.Contains(reader.GetString(0)))
-                            {
-                                categories.Add(reader.GetString(0));
-                            }
+                            categories.Add(reader[0].ToString());
                         }
                         catch(Exception ex)
                         {
@@ -1125,7 +1123,7 @@ namespace Budget_Buddy
                 }
             }
 
-            await using (var command = dataSource.CreateCommand($"SELECT category FROM tempbills WHERE UserID = @userid and category IS NOT NULL"))
+            await using (var command = dataSource.CreateCommand($"SELECT DISTINCT category FROM tempbills WHERE UserID = @userid and category IS NOT NULL"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -1135,10 +1133,7 @@ namespace Budget_Buddy
                     {
                         try
                         {
-                            if (!categories.Contains(reader.GetString(0)))
-                            {
-                                categories.Add(reader.GetString(0));
-                            }
+                            categories.Add(reader[0].ToString());
                         }
                         catch (Exception ex)
                         {
@@ -1148,7 +1143,7 @@ namespace Budget_Buddy
                 }
             }
 
-            await using (var command = dataSource.CreateCommand($"SELECT category FROM recurringbills WHERE UserID = @userid and category IS NOT NULL"))
+            await using (var command = dataSource.CreateCommand($"SELECT DISTINCT category FROM recurringbills WHERE UserID = @userid and category IS NOT NULL"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -1158,10 +1153,7 @@ namespace Budget_Buddy
                     {
                         try
                         {
-                            if (!categories.Contains(reader.GetString(0)))
-                            {
-                                categories.Add(reader.GetString(0));
-                            }
+                            categories.Add(reader[0].ToString());
                         }
                         catch (Exception ex)
                         {
