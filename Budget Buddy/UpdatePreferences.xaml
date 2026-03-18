@@ -94,7 +94,7 @@
                                         <Picker SelectedItem="{Binding Category}"
                                                 Grid.Row="3"
                                                 Grid.Column="0"
-                                                ItemsSource="{Binding Source={x:Static models:Bill.AllCategories}}"
+                                                
                                                 x:Name="CategoryPicker"
                                                FontSize="20"
                                                HorizontalTextAlignment="Center"
@@ -176,6 +176,7 @@
 
 
                                         <Label Text="Category" HorizontalTextAlignment="Center" VerticalTextAlignment="Start" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"></Label>
+                                        <!--
                                         <Picker SelectedItem="{Binding Category}"
                                                 Grid.Row="2"
                                                 Grid.ColumnSpan="2"
@@ -185,7 +186,7 @@
                                                FontSize="20"
                                                HorizontalTextAlignment="Center"
                                                VerticalOptions="Center"/>
-
+-->
                                         <ImageButton 
                                         Grid.Column="4"
                                         Grid.RowSpan="3"
@@ -301,6 +302,7 @@
                                         HorizontalTextAlignment="Center"/>
 
                                         <Label Text="Category" HorizontalTextAlignment="Center" VerticalTextAlignment="Start" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2"></Label>
+                                        <!--
                                         <Picker SelectedItem="{Binding Category}"
                                                 Grid.Row="2"
                                                 Grid.ColumnSpan="2"
@@ -310,7 +312,7 @@
                                                FontSize="20"
                                                HorizontalTextAlignment="Center"
                                                VerticalOptions="Center"/>
-
+-->
                                         <ImageButton 
                                         Grid.Column="4"
                                             Grid.RowSpan="2"

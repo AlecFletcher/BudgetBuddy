@@ -5,12 +5,12 @@
              Title="Add Category"
              xmlns:models ="clr-namespace:Budget_Buddy.Models">
     <VerticalStackLayout>
-        <CollectionView x:Name="categoriesCollectionView">
+        <CollectionView x:Name="categoriesCollectionView" x:DataType="models:Category">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Border>
                         <Grid ColumnDefinitions="*,60" RowDefinitions="80">
-                            <Label Text="{Binding}" HorizontalTextAlignment="Center" FontSize="30" VerticalTextAlignment="Center"></Label>
+                            <Entry Text="{Binding Name}" HorizontalTextAlignment="Center" FontSize="28" VerticalOptions="Center"/>
                             <ImageButton Source="trashcan.png" MaximumHeightRequest="50" Clicked="Trashcan_Clicked" Grid.Column="1" HorizontalOptions="End" VerticalOptions="Center"/>
                         </Grid>
 

@@ -15,8 +15,6 @@ namespace Budget_Buddy.Models
         public static ObservableCollection<Bill> BillList = new ObservableCollection<Bill>();
         public static ObservableCollection<Bill> TempBillList = new ObservableCollection<Bill>();
         public static ObservableCollection<Bill> RecurringBillList = new ObservableCollection<Bill>();
-        public static ObservableCollection<string> AllCategories { get; set; } =  new ObservableCollection<string>();
-        public static ObservableCollection<string> TempCategories { get; set; } =  new ObservableCollection<string>();
         public int? BillID {  get; set; }
         public string Name { get; set; }
         public double Price { get; set; }

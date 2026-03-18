@@ -1100,10 +1100,10 @@ namespace Budget_Buddy
         }
         #endregion
 
-        public static async Task<ObservableCollection<string>> GetCategories(int userId)
+        public static async Task GetCategories(int userId)
         {
-            ObservableCollection<string> categories = new ObservableCollection<string>();
-            await using (var command = dataSource.CreateCommand($"SELECT DISTINCT category FROM bills WHERE UserID = @userid and category IS NOT NULL"))
+            Category.AllCategories.Clear();
+            await using (var command = dataSource.CreateCommand($"SELECT id, name FROM categories WHERE UserID = @userid"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -1113,57 +1113,17 @@ namespace Budget_Buddy
                     {
                         try
                         {
-                            categories.Add(reader[0].ToString());
+                            Category category = new Category(Convert.ToInt32(reader[0]), reader[1].ToString());
+                            Category.AllCategories.Add(category);
+
                         }
                         catch(Exception ex)
                         {
-
+                            Console.WriteLine(ex);
                         }
                     }
                 }
             }
-
-            await using (var command = dataSource.CreateCommand($"SELECT DISTINCT category FROM tempbills WHERE UserID = @userid and category IS NOT NULL"))
-            {
-                command.Parameters.AddWithValue("@userid", userId);
-
-                await using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (reader.Read())
-                    {
-                        try
-                        {
-                            categories.Add(reader[0].ToString());
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
-                    }
-                }
-            }
-
-            await using (var command = dataSource.CreateCommand($"SELECT DISTINCT category FROM recurringbills WHERE UserID = @userid and category IS NOT NULL"))
-            {
-                command.Parameters.AddWithValue("@userid", userId);
-
-                await using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (reader.Read())
-                    {
-                        try
-                        {
-                            categories.Add(reader[0].ToString());
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
-                    }
-                }
-            }
-
-            return categories;
         }
     }
 }
