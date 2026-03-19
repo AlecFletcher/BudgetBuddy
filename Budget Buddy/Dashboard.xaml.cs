@@ -14,7 +14,7 @@ namespace Budget_Buddy;
 
 public partial class Dashboard : ContentPage
 {
-    static int UserID;
+    public static int UserID;
     string UserName;
     DateTime DBPayday = new DateTime();
     DateTime ViewPayday = new DateTime();

@@ -1125,5 +1125,43 @@ namespace Budget_Buddy
                 }
             }
         }
+
+        public static async Task DeleteCategories(List<int?> Ids) 
+        {
+            foreach(int i in Ids)
+            {
+                await using (var command = dataSource.CreateCommand("DELETE FROM categories WHERE id = @categoryId"))
+                {
+                    command.Parameters.AddWithValue("@categoryId", i);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        public static async Task AddCategory(int userId, List<string> categoryName)
+        {
+            foreach(string category in categoryName)
+            {
+                await using (var command = dataSource.CreateCommand("INSERT INTO categories (userid, name) VALUES (@userid, @name)"))
+                {
+                    command.Parameters.AddWithValue("@userid", userId);
+                    command.Parameters.AddWithValue("@name", category);
+
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+
+        }
+
+        public static async Task UpdateCategory(int? categoryId, string updatedName)
+        {
+            await using (var command = dataSource.CreateCommand("UPDATE categories SET name = @updatedname WHERE id = @categoryid"))
+            {
+                command.Parameters.AddWithValue("@updatedname", updatedName);
+                command.Parameters.AddWithValue("@categoryid", categoryId);
+                await command.ExecuteNonQueryAsync();
+            }
+        }
     }
 }

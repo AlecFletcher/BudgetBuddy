@@ -4,23 +4,30 @@
              x:Class="Budget_Buddy.AddCategory"
              Title="Add Category"
              xmlns:models ="clr-namespace:Budget_Buddy.Models">
-    <VerticalStackLayout>
-        <CollectionView x:Name="categoriesCollectionView" x:DataType="models:Category">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border>
-                        <Grid ColumnDefinitions="*,60" RowDefinitions="80">
-                            <Entry Text="{Binding Name}" HorizontalTextAlignment="Center" FontSize="28" VerticalOptions="Center"/>
-                            <ImageButton Source="trashcan.png" MaximumHeightRequest="50" Clicked="Trashcan_Clicked" Grid.Column="1" HorizontalOptions="End" VerticalOptions="Center"/>
-                        </Grid>
+    <Grid RowDefinitions="*, 60">
+        
 
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-        <Grid ColumnDefinitions="*,80,10">
-            <ImageButton Source="plus_symbol.png" Grid.Column="1" Clicked="Plus_Button_Clicked"></ImageButton>
-        </Grid>
+        <VerticalStackLayout Grid.Row="0">
+            <CollectionView x:Name="categoriesCollectionView" x:DataType="models:Category">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border>
+                            <Grid ColumnDefinitions="*,60" RowDefinitions="80">
+                                <Entry Text="{Binding Name, Mode=TwoWay}" TextChanged="Text_Changed" HorizontalTextAlignment="Center" FontSize="28" VerticalOptions="Center"/>
+                                <ImageButton Source="trashcan.png" MaximumHeightRequest="50" Clicked="Trashcan_Clicked" Grid.Column="1" HorizontalOptions="End" VerticalOptions="Center"/>
+                            </Grid>
 
-    </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Grid ColumnDefinitions="*,80,10">
+                <ImageButton Source="plus_symbol.png" Grid.Column="1" Clicked="Plus_Button_Clicked"></ImageButton>
+            </Grid>
+
+
+        </VerticalStackLayout>
+
+        <Button Text="Save" Clicked="Save_Button_Clicked" Grid.Row="1"></Button>
+    </Grid>
 </ContentPage>
