@@ -1,5 +1,6 @@
 using Budget_Buddy.Models;
 using System.Threading.Tasks;
+using Xamarin.Google.Crypto.Tink.Proto;
 
 namespace Budget_Buddy;
 
@@ -29,25 +30,23 @@ public partial class AddCategory : ContentPage
 		ImageButton imageButton = sender as ImageButton;
 		Category category = imageButton.BindingContext as Category;
         try
-        {
-            IdsToBeDeleted.Add(category.Id);
+        { 
+            if(category.Id != null)
+            {
+                IdsToBeDeleted.Add(category.Id);
+            }
         }
-        catch(Exception ex)
-        {
+        catch(Exception ex) { }
 
-        }
         try { CategoriesToBeUpdated.Remove(category); }
-        catch(Exception ex)
-        {
-
-        }
+        catch(Exception ex) { }
 
         try { CategoriesToBeAdded.Remove(category.Name); }
-        catch (Exception ex)
-        {
+        catch (Exception ex) { }
 
-        }
-        Category.TempCategories.Remove(category);
+        try
+        { Category.TempCategories.Remove(category); }
+        catch (Exception ex) { }
     }
 
     private void Text_Changed(object sender, TextChangedEventArgs e)
@@ -71,19 +70,23 @@ public partial class AddCategory : ContentPage
         {
             if (category.Id == null && category.Name != null)
             {
-                CategoriesToBeAdded.Add(category.Name);
+                try
+                { CategoriesToBeAdded.Add(category.Name); }
+                catch (Exception ex) { }
             }
         }
         if (CategoriesToBeAdded.Count > 0)
         {
-            await DBHandler.AddCategory(Dashboard.UserID, CategoriesToBeAdded);
+            try { await DBHandler.AddCategory(Dashboard.UserID, CategoriesToBeAdded); }
+            catch(Exception ex) { }
         }
 
         if (CategoriesToBeUpdated.Count > 0)
         {
             foreach (Category category in CategoriesToBeUpdated)
             {
-                await DBHandler.UpdateCategory(category.Id, category.Name);
+                try { await DBHandler.UpdateCategory(category.Id, category.Name); }
+                catch(Exception ex) { }
             }
         }
 

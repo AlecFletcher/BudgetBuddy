@@ -14,6 +14,7 @@ namespace Budget_Buddy.Models
         public string Name { get; set; }
         public static ObservableCollection<Category> AllCategories { get; set; } = new ObservableCollection<Category>();
         public static ObservableCollection<Category> TempCategories { get; set; } = new ObservableCollection<Category>();
+        public static ObservableCollection<string> CategoryStrings { get; set; } = new ObservableCollection<string>();
         public Category(int id, int userid, string name)
         {
             Id = id;

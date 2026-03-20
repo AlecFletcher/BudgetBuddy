@@ -500,12 +500,13 @@ namespace Budget_Buddy
 
         public static async Task UpdateBIll(Bill bill)
         {
-            await using (var command = dataSource.CreateCommand("UPDATE Bills SET DueDate = @duedate, Price = CAST(@price AS NUMERIC), BillName = @billname WHERE BillID = @billId"))
+            await using (var command = dataSource.CreateCommand("UPDATE Bills SET DueDate = @duedate, Price = CAST(@price AS NUMERIC), BillName = @billname, category = @category WHERE BillID = @billId"))
             {
                 command.Parameters.AddWithValue("@duedate", bill.DueDay);
                 command.Parameters.AddWithValue("@price", bill.Price);
                 command.Parameters.AddWithValue("@billname", bill.Name);
                 command.Parameters.AddWithValue("@billId", bill.BillID);
+                command.Parameters.AddWithValue("@category", bill.Category);
                 await command.ExecuteNonQueryAsync();
             }
         }
@@ -1103,7 +1104,8 @@ namespace Budget_Buddy
         public static async Task GetCategories(int userId)
         {
             Category.AllCategories.Clear();
-            await using (var command = dataSource.CreateCommand($"SELECT id, name FROM categories WHERE UserID = @userid"))
+            Category.CategoryStrings.Clear();
+            await using (var command = dataSource.CreateCommand($"SELECT id, name FROM categories WHERE UserID = @userid ORDER BY name ASC"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
 
@@ -1115,6 +1117,7 @@ namespace Budget_Buddy
                         {
                             Category category = new Category(Convert.ToInt32(reader[0]), reader[1].ToString());
                             Category.AllCategories.Add(category);
+                            Category.CategoryStrings.Add(category.Name);
 
                         }
                         catch(Exception ex)

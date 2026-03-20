@@ -350,6 +350,7 @@ public partial class UpdatePreferences : ContentPage
     {
         if (Purpose == "Bills")
         {
+            await DBHandler.GetCategories(UserID);
             Bills_Grid.IsVisible = true;
             BillList = await DBHandler.GetAllBillsList(UserID);
             bills_collectionview.ItemsSource = BillList;
@@ -359,6 +360,11 @@ public partial class UpdatePreferences : ContentPage
             temp_bills_collectionview.ItemsSource = Bill.TempBillList;
             Bill.RecurringBillList = await DBHandler.GetAllRecurringBills(UserID);
             recurring_bills_collectionview.ItemsSource = Bill.RecurringBillList;
+
+            foreach(Category category in Category.AllCategories)
+            {
+                Console.WriteLine(category.Id.ToString() + " " + category.Name);
+            }
 
         }
         if (Purpose == "Income")

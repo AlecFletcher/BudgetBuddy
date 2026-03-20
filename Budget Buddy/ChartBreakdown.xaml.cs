@@ -16,37 +16,34 @@ public partial class ChartBreakdown : ContentPage
         
 	}
 
-    async void OnPageLoaded(object sender, EventArgs e)
+    async void ContentPage_Loaded(object sender, EventArgs e)
     {
+        Console.WriteLine("Page Loaded");
         await MakePieChart();
     }
 
     private async Task MakePieChart()
     {
         string[] colors = { "#1f3f5c", "#2670b5", "#5999d4", "#0c2d4d", "#2aa4bd", "#007d96", "#12414a", "#7c61ab", "#462a75", "#1a0440" };
-        ObservableCollection<string> categories = new ObservableCollection<string>();
+        await DBHandler.GetCategories(Dashboard.UserID);
 
-        foreach (Category category in Category.AllCategories)
-        {
-            categories.Add(category.Name);
-        }
-
-        ChartEntry[] entries = new ChartEntry[categories.Count + 1];
+        ChartEntry[] entries = new ChartEntry[Category.AllCategories.Count + 1];
 
         Dictionary<string, double> CategoryPrices = new Dictionary<string, double>();
 
         double totalBillAmount = 0;
 
-        for (int i = 0; i < categories.Count; i++)
+        for (int i = 0; i < Category.AllCategories.Count; i++)
         {
-            CategoryPrices.Add(categories[i], 0);
+            Console.WriteLine($"Category {Category.AllCategories[i].Name} added.");
+            CategoryPrices.Add(Category.AllCategories[i].Name, 0);
         }
 
         CategoryPrices.Add("Other", 0);
 
         foreach (Bill bill in Bill.BillList)
         {
-            try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; }
+            try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; Console.WriteLine($"Bill: {bill.Name} with price: {bill.Price} was added."); }
             catch (Exception ex)
             {
                 CategoryPrices["Other"] += bill.Price;
@@ -95,7 +92,7 @@ public partial class ChartBreakdown : ContentPage
 
         }
 
-        chartView.Chart = new PieChart()
+        chartView.Chart = new PieChart
         {
             Entries = entries,
             LabelTextSize = 40,
