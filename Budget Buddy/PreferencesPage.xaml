@@ -14,9 +14,6 @@
             <Button Text="Update Debt / Savings Percentages" Clicked="Update_Percentage_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
             <Button Text="Update Income / Pay Frequency" Clicked="Update_Income_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
             <Button Text="Update Bills / Debts" Clicked="Update_Bills_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
-            <Button Text="Future Savings / Debt Report" Clicked="Report_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
-            <Button Text="Debt Payoff Report" Clicked="Debt_Payoff_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
-            <Button Text="All Bills and Debts" Clicked="Bill_Debt_List_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
             <Button Text="Add Categories" Clicked="Add_Category_Button_Clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
             <Button Text="Log Out" Clicked="Log_out_clicked" Margin="-10,0" BorderWidth="2" MinimumHeightRequest="80" FontSize="20"/>
         </VerticalStackLayout>

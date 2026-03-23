@@ -74,7 +74,14 @@ namespace Budget_Buddy.Models
             PrincipalBalance = balanceDue;
             Price = minimumPayment;
             DueDay = dueday;
-
+            if (category != null)
+            {
+                Category = category;
+            }
+            else
+            {
+                Category = "";
+            }
         }
 
         public Debt(int debtId, string name, double minimumPayment, int dueday, double balanceDue, string? category )
@@ -90,7 +97,7 @@ namespace Budget_Buddy.Models
             }
             else
             {
-                Category = "Other";
+                Category = "";
             }
         }
     }

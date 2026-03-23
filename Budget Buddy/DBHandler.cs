@@ -477,7 +477,7 @@ namespace Budget_Buddy
                         }
                         catch(Exception ex)
                         {
-                            Bill bill = new Bill(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), reader[4].ToString() == "1", "Other");
+                            Bill bill = new Bill(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), reader[4].ToString() == "1", "");
                             bills.Add(bill);
                         }
 
@@ -697,13 +697,14 @@ namespace Budget_Buddy
 
         public static async Task UpdateDebt(Debt debt)
         {
-            await using (var command = dataSource.CreateCommand("UPDATE Bills SET DueDate = @duedate, Price = CAST(@price AS NUMERIC), BillName = @billname, PrincipalBalance = @principalbalance WHERE BillID = @billId"))
+            await using (var command = dataSource.CreateCommand("UPDATE Bills SET DueDate = @duedate, Price = CAST(@price AS NUMERIC), BillName = @billname, PrincipalBalance = @principalbalance, category = @category WHERE BillID = @billId"))
             {
                 command.Parameters.AddWithValue("@duedate", debt.DueDay);
                 command.Parameters.AddWithValue("@price", debt.Price);
                 command.Parameters.AddWithValue("@billname", debt.Name);
                 command.Parameters.AddWithValue("@billId", debt.BillID);
                 command.Parameters.AddWithValue("@principalbalance", debt.PrincipalBalance);
+                command.Parameters.AddWithValue("@category", debt.Category);
                 await command.ExecuteNonQueryAsync();
             }
         }
@@ -720,12 +721,12 @@ namespace Budget_Buddy
                     {
                         try
                         {
-                            Debt debt = new Debt(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), Convert.ToDouble(reader[4]), Convert.ToString(5));
+                            Debt debt = new Debt(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), Convert.ToDouble(reader[4]), Convert.ToString(reader[5]));
                             debts.Add(debt);
                         }
                         catch (Exception ex)
                         {
-                            Debt debt = new Debt(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), Convert.ToDouble(reader[4]), "Other");
+                            Debt debt = new Debt(Convert.ToInt32(reader[0]), reader[1].ToString(), Convert.ToDouble(reader[2]), Convert.ToInt32(reader[3]), Convert.ToDouble(reader[4]), "");
                             debts.Add(debt);
                         }
                     }
@@ -946,13 +947,14 @@ namespace Budget_Buddy
         }
 
         #region Temp Bills
-        public static async Task AddTempBill(int userId, string billName, double billPrice)
+        public static async Task AddTempBill(int userId, string billName, double billPrice, string category)
         {
-            await using (var command = dataSource.CreateCommand("INSERT INTO TempBills (userid, price, billname, paid) VALUES (@userid, CAST(@billprice AS numeric), @billname, false)"))
+            await using (var command = dataSource.CreateCommand("INSERT INTO TempBills (userid, price, billname, paid, category) VALUES (@userid, CAST(@billprice AS numeric), @billname, false, @category)"))
             {
                 command.Parameters.AddWithValue("@userid", userId);
                 command.Parameters.AddWithValue("@billprice", billPrice);
                 command.Parameters.AddWithValue("@billname", billName);
+                command.Parameters.AddWithValue("@category", category);
 
                 await command.ExecuteNonQueryAsync();
             }
@@ -960,11 +962,12 @@ namespace Budget_Buddy
 
         public static async Task UpdateRecurringBIll(Bill bill)
         {
-            await using (var command = dataSource.CreateCommand("UPDATE RecurringBills SET Price = CAST(@price AS NUMERIC), BillName = @billname WHERE BillID = @billId"))
+            await using (var command = dataSource.CreateCommand("UPDATE RecurringBills SET Price = CAST(@price AS NUMERIC), BillName = @billname, category = @category WHERE BillID = @billId"))
             {
                 command.Parameters.AddWithValue("@price", bill.Price);
                 command.Parameters.AddWithValue("@billname", bill.Name);
                 command.Parameters.AddWithValue("@billId", bill.BillID);
+                command.Parameters.AddWithValue("@category", bill.Category);
                 await command.ExecuteNonQueryAsync();
             }
         }
@@ -997,7 +1000,7 @@ namespace Budget_Buddy
                         }
                         catch (Exception ex)
                         {
-                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), "Other");
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), "");
                             bills.Add(bill);
                         }
 
@@ -1033,11 +1036,12 @@ namespace Budget_Buddy
         }
         public static async Task UpdateTempBIll(Bill bill)
         {
-            await using (var command = dataSource.CreateCommand("UPDATE TempBills SET Price = CAST(@price AS NUMERIC), BillName = @billname WHERE BillID = @billId"))
+            await using (var command = dataSource.CreateCommand("UPDATE TempBills SET Price = CAST(@price AS NUMERIC), BillName = @billname, category = @category WHERE BillID = @billId"))
             {
                 command.Parameters.AddWithValue("@price", bill.Price);
                 command.Parameters.AddWithValue("@billname", bill.Name);
                 command.Parameters.AddWithValue("@billId", bill.BillID);
+                command.Parameters.AddWithValue("@category", bill.Category);
                 await command.ExecuteNonQueryAsync();
             }
         }
@@ -1062,12 +1066,13 @@ namespace Budget_Buddy
             }
         }
 
-        public static async Task UpdateRecurringBillPaidStatus(int? billId, bool isChecked)
+        public static async Task UpdateRecurringBillPaidStatus(int? billId, bool isChecked, string category)
         {
-            await using (var command = dataSource.CreateCommand("UPDATE RecurringBills SET Paid = @paid WHERE BillID = @billid"))
+            await using (var command = dataSource.CreateCommand("UPDATE RecurringBills SET Paid = @paid, category = @category WHERE BillID = @billid"))
             {
                 command.Parameters.AddWithValue("@paid", isChecked);
                 command.Parameters.AddWithValue("@billid", billId);
+                command.Parameters.AddWithValue("@category", category);
                 await command.ExecuteNonQueryAsync();
             }
         }
@@ -1090,7 +1095,7 @@ namespace Budget_Buddy
                         }
                         catch(Exception ex)
                         {
-                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), "Other");
+                            Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), "");
                             bills.Add(bill);
                         }
 
@@ -1127,6 +1132,7 @@ namespace Budget_Buddy
                     }
                 }
             }
+            Category.CategoryStrings.Add(" ");
         }
 
         public static async Task DeleteCategories(List<int?> Ids) 

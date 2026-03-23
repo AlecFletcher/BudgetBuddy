@@ -436,7 +436,7 @@ public partial class Dashboard : ContentPage
     {
         CheckBox checkBox = sender as CheckBox;
         Bill bill = (Bill)checkBox.BindingContext;
-        await DBHandler.UpdateRecurringBillPaidStatus(bill.BillID, bill.Paid);
+        await DBHandler.UpdateRecurringBillPaidStatus(bill.BillID, bill.Paid, bill.Category);
         RecalculateFunds(Balance);
     }
 

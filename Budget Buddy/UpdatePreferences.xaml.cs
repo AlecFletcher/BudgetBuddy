@@ -177,7 +177,7 @@ public partial class UpdatePreferences : ContentPage
         {
             if(bill.BillID == null)
             {
-                await DBHandler.AddTempBill(UserID, bill.Name, bill.Price);
+                await DBHandler.AddTempBill(UserID, bill.Name, bill.Price, bill.Category);
             }
             else
             {
