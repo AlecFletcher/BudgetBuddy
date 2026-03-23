@@ -1,4 +1,5 @@
 using Budget_Buddy.Models;
+using Java.Time;
 using Microcharts;
 using Microcharts.Maui;
 using SkiaSharp;
@@ -9,17 +10,22 @@ namespace Budget_Buddy;
 public partial class ChartBreakdown : ContentPage
 {
     double MonthlyIncome = 0;
-	public ChartBreakdown(double monthlyIncome)
+    double BillTotal = 0;
+	public ChartBreakdown(double monthlyIncome, double monthlyBillTotal)
 	{
         MonthlyIncome = monthlyIncome;
+        BillTotal = monthlyBillTotal;
+        Console.WriteLine(BillTotal);
+
 		InitializeComponent();
         
 	}
 
     async void ContentPage_Loaded(object sender, EventArgs e)
     {
-        Console.WriteLine("Page Loaded");
+        monthly_bills_total_label.Text = $"${BillTotal.ToString()}";
         await MakePieChart();
+
     }
 
     private async Task MakePieChart()
@@ -35,7 +41,6 @@ public partial class ChartBreakdown : ContentPage
 
         for (int i = 0; i < Category.AllCategories.Count; i++)
         {
-            Console.WriteLine($"Category {Category.AllCategories[i].Name} added.");
             CategoryPrices.Add(Category.AllCategories[i].Name, 0);
         }
 
@@ -43,7 +48,7 @@ public partial class ChartBreakdown : ContentPage
 
         foreach (Bill bill in Bill.BillList)
         {
-            try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; Console.WriteLine($"Bill: {bill.Name} with price: {bill.Price} was added."); }
+            try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; BillTotal += bill.Price; }
             catch (Exception ex)
             {
                 CategoryPrices["Other"] += bill.Price;
@@ -53,8 +58,7 @@ public partial class ChartBreakdown : ContentPage
 
         foreach (Bill bill in Bill.RecurringBillList)
         {
-            Console.WriteLine(bill.Name + " " + bill.Price);
-            try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; }
+            try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; BillTotal += bill.Price; }
             catch (Exception ex)
             {
                 CategoryPrices["Other"] += bill.Price;
@@ -64,14 +68,13 @@ public partial class ChartBreakdown : ContentPage
 
         foreach (Bill bill in Bill.TempBillList)
         {
-            try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; }
+            try { CategoryPrices[bill.Category] += bill.Price; totalBillAmount += bill.Price; BillTotal += bill.Price; }
             catch (Exception ex)
             {
                 CategoryPrices["Other"] += bill.Price;
                 totalBillAmount += bill.Price;
             }
         }
-
 
         //Assign Colors Based on Dark mode / light mode
         string LabelColorString = "#404040";
@@ -89,7 +92,6 @@ public partial class ChartBreakdown : ContentPage
         {
             entries[j] = new ChartEntry((float)entry.Value) { Label = entry.Key, Color = SKColor.Parse(colors[j]), ValueLabelColor = SKColor.Parse(ValueColorString), ValueLabel = $"${entry.Value} ({Math.Round((entry.Value / MonthlyIncome) * 100, 0)}%)" };
             j++;
-
         }
 
         chartView.Chart = new PieChart

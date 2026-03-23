@@ -565,93 +565,24 @@ public partial class Dashboard : ContentPage
         }
     }
 
+    /*
     private async Task DoMonthlyCalculation()
     {
         TempIncome = 0;
-        int extrapaydays = 1;
-        
-
-        switch (PayFrequency)
-        {
-            case 0:
-                extrapaydays = 3;
-                break;
-
-            case 1:
-                extrapaydays = 1;
-                break;
-
-            case 2:
-                extrapaydays = 0;
-                break;
-
-            case 3:
-                extrapaydays = 1;
-                break;
-        }
 
         TempIncome = Income * (extrapaydays + 1);
         payperiod_label.Text = $"{ViewPayday.ToString("MM/dd/yy")} - {ViewPayday.AddMonths(1).ToString("MM/dd/yy")}";
         await DBHandler.GenerateBills(UserID, DBPayday, DBPayday.AddMonths(1));
 
-        CurrentPayperiodBillTotal = 0;
-        foreach (Bill bill in Bill.BillList)
-        {
-            CurrentPayperiodBillTotal += bill.Price;
-            if(bill.DueDay < DateTime.Now.Day)
-            {
-                bill.Paid = true;
-            }
-            if (!bill.Paid)
-            {
-                
-            }
 
-        }
-        foreach (Bill bill in Bill.TempBillList)
-        {
-            CurrentPayperiodBillTotal += bill.Price;
-            if (bill.DueDay < DateTime.Now.Day)
-            {
-                bill.Paid = true;
-            }
-            if (!bill.Paid)
-            {
-                
-            }
-        }
-        List<Bill> tempList = Bill.RecurringBillList.ToList();
-        if (extrapaydays > 0)
-        {
-
-            for (int i = 0; i < extrapaydays; i++)
-            {
-                foreach (Bill bill in Bill.RecurringBillList) 
-                {
-                    bill.Paid = false;
-                    Bill tempBill = bill;
-                    tempList.Add(tempBill);
-                }
-            }
-        }
-
-        
-
-            foreach (Bill bill in tempList)
-        {
-            CurrentPayperiodBillTotal += bill.Price;
-
-            if (!bill.Paid)
-            {
-                
-            }
-        }
         Balance = await DBHandler.GetBalance(UserID);
         monthly_current_balance_entry.Text = Balance.ToString();
         monthly_bill_total_label.Text = "$" + CurrentPayperiodBillTotal.ToString();
         remaining_monthly_balance_label.Text = "$" + (Convert.ToDouble(TempIncome) - CurrentPayperiodBillTotal).ToString();
 
     }
+
+    */
 
     private async void PopulateMonthlyGrid()
     {
@@ -684,19 +615,97 @@ public partial class Dashboard : ContentPage
 
     private async void Pie_Chart_Clicked(object sender, EventArgs e)
     {
-        ChartBreakdown chartBreakdown = new ChartBreakdown(TempIncome);
+        TempIncome = GetMonthlyIncome();
+        CurrentPayperiodBillTotal = GetMonthlyBillTotal();
+        ChartBreakdown chartBreakdown = new ChartBreakdown(TempIncome, CurrentPayperiodBillTotal);
         await Navigation.PushAsync(chartBreakdown);
-        /*
-        if (current_payperiod_dashboard_grid.IsVisible)
+    }
+
+    private double GetMonthlyIncome()
+    {
+        TempIncome = 0;
+        int extrapaydays = 1;
+
+
+        switch (PayFrequency)
         {
-            PopulateMonthlyGrid();
-            await DoMonthlyCalculation();
+            case 0:
+                extrapaydays = 3;
+                break;
+
+            case 1:
+                extrapaydays = 1;
+                break;
+
+            case 2:
+                extrapaydays = 0;
+                break;
+
+            case 3:
+                extrapaydays = 1;
+                break;
         }
-        else
+
+        return Income * (extrapaydays + 1);
+    }
+
+    public double GetMonthlyBillTotal()
+    {
+        int extrapaydays = 1;
+        double runningTotal = 0;
+        switch (PayFrequency)
         {
-            HideMonthlyGrid();
-            PopulateCurrentPayPeriodGUI();
+            case 0:
+                extrapaydays = 3;
+                break;
+
+            case 1:
+                extrapaydays = 1;
+                break;
+
+            case 2:
+                extrapaydays = 0;
+                break;
+
+            case 3:
+                extrapaydays = 1;
+                break;
         }
-        */
+
+
+        foreach (Bill bill in Bill.BillList)
+        {
+            runningTotal += bill.Price;
+            Console.WriteLine($"Bill: {bill.Name} with Price: {bill.Price}.");
+        }
+        foreach (Bill bill in Bill.TempBillList)
+        {
+            runningTotal += bill.Price;
+            Console.WriteLine($"Bill: {bill.Name} with Price: {bill.Price}.");
+        }
+        List<Bill> tempList = Bill.RecurringBillList.ToList();
+        if (extrapaydays > 0)
+        {
+
+            for (int i = 0; i < extrapaydays; i++)
+            {
+                foreach (Bill bill in Bill.RecurringBillList)
+                {
+                    bill.Paid = false;
+                    Bill tempBill = bill;
+                    tempList.Add(tempBill);
+                }
+            }
+        }
+
+
+
+        foreach (Bill bill in tempList)
+        {
+            runningTotal += bill.Price;
+            Console.WriteLine($"Bill: {bill.Name} with Price: {bill.Price}.");
+        }
+
+        return runningTotal;
     }
 }

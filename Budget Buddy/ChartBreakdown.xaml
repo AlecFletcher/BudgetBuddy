@@ -12,12 +12,11 @@
             <Label Text="Remaining Balance: " FontSize="25" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
             <Label x:Name="remaining_monthly_balance_label" Grid.Column="2" Grid.Row="1" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold"></Label>
             <Label Text="Monthly Bill Total: " FontSize="23" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
-            <Label x:Name="monthly_bill_total_label" Grid.Column="2" Grid.Row="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" FontSize="25" FontAttributes="Bold"></Label>
-
+            <Label x:Name="monthly_bills_total_label" FontSize="25" Grid.Column="2" Grid.Row="2" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
         </Grid>
 
-        <Grid x:Name="chartGrid" ColumnDefinitions="20,*,20" RowDefinitions="300" BackgroundColor="AliceBlue">
-            <microcharts:ChartView x:Name="chartView" WidthRequest="300" Grid.Column="1"/>
+        <Grid x:Name="chartGrid" ColumnDefinitions="20,*,20" RowDefinitions="500" BackgroundColor="AliceBlue">
+            <microcharts:ChartView x:Name="chartView" Grid.Column="1"/>
         </Grid>
     </VerticalStackLayout>
 </ContentPage>
