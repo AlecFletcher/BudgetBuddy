@@ -134,6 +134,7 @@ namespace Budget_Buddy
         {
             await using (var command = dataSource.CreateCommand("INSERT INTO Bills (userid, duedate, price, billname, paid, principalbalance, category) VALUES (@userid, @billdue, CAST(@billprice AS numeric), @billname, false, null, @category)"))
             {
+                Console.WriteLine("Bill Added");
                 command.Parameters.AddWithValue("@userid", userId);
                 command.Parameters.AddWithValue("@billdue", billDay);
                 command.Parameters.AddWithValue("@billprice", billPrice);
@@ -509,6 +510,7 @@ namespace Budget_Buddy
                 command.Parameters.AddWithValue("@category", bill.Category);
                 await command.ExecuteNonQueryAsync();
             }
+            Console.WriteLine("Bill Updated");
         }
 
         //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
@@ -707,6 +709,7 @@ namespace Budget_Buddy
                 command.Parameters.AddWithValue("@category", debt.Category);
                 await command.ExecuteNonQueryAsync();
             }
+            Console.WriteLine("Debt Updated");
         }
 
         public static async Task<ObservableCollection<Debt>> GenerateDebtList(int userId)
@@ -958,6 +961,8 @@ namespace Budget_Buddy
 
                 await command.ExecuteNonQueryAsync();
             }
+
+            Console.WriteLine("Temp Bill Added");
         }
 
         public static async Task UpdateRecurringBIll(Bill bill)
@@ -970,6 +975,7 @@ namespace Budget_Buddy
                 command.Parameters.AddWithValue("@category", bill.Category);
                 await command.ExecuteNonQueryAsync();
             }
+            Console.WriteLine("Recurring Bill Updated");
         }
 
         public static async Task UpdateTempBillPaidStatus(int? billId, bool isChecked)
@@ -1044,6 +1050,7 @@ namespace Budget_Buddy
                 command.Parameters.AddWithValue("@category", bill.Category);
                 await command.ExecuteNonQueryAsync();
             }
+            Console.WriteLine("Temp Bill Updated");
         }
 
         public static async Task RemoveTempBill(Bill bill)
@@ -1075,6 +1082,7 @@ namespace Budget_Buddy
                 command.Parameters.AddWithValue("@category", category);
                 await command.ExecuteNonQueryAsync();
             }
+            Console.WriteLine("Recurring Bill Paid Status Updated");
         }
 
         public static async Task<ObservableCollection<Bill>> GetAllRecurringBills(int userId)

@@ -361,11 +361,6 @@ public partial class UpdatePreferences : ContentPage
             Bill.RecurringBillList = await DBHandler.GetAllRecurringBills(UserID);
             recurring_bills_collectionview.ItemsSource = Bill.RecurringBillList;
 
-            foreach(Category category in Category.AllCategories)
-            {
-                Console.WriteLine(category.Id.ToString() + " " + category.Name);
-            }
-
         }
         if (Purpose == "Income")
         {

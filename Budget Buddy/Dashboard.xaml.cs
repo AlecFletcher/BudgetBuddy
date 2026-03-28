@@ -327,7 +327,19 @@ public partial class Dashboard : ContentPage
 
     private async void ContentPage_Loaded(object sender, EventArgs e)
     {
-        HideMonthlyGrid();
+
+
+
+                 ////////////////////////// Crash Test ////////////////////////////////////
+        //Figure out why tf this block stops crashing when going back to dashboard from update bills//
+
+        Debt.DebtList = await DBHandler.GenerateDebtList(UserID);
+        Bill.TempBillList = await DBHandler.GetAllTempBills(UserID);
+        Bill.RecurringBillList = await DBHandler.GetAllRecurringBills(UserID);
+
+                //////////////////////////////////////////////////////////////////////////
+
+
         await DBHandler.GetCategories(UserID);
         bill_collectionview.ItemsSource = Bill.BillList;
         tempbill_collectionview.ItemsSource = Bill.TempBillList;
@@ -344,7 +356,6 @@ public partial class Dashboard : ContentPage
         first_name_label.HorizontalOptions = LayoutOptions.Center;
         Balance = await DBHandler.GetBalance(UserID);
         current_balance_entry.Text = Balance.ToString("N2");
-
         // Indices as follows  0-Income, 1-Savings Percent, 2-Debt Percent
         PreferencesList = await DBHandler.GetUserPreferences(UserID);
         Income = PreferencesList[0];
@@ -453,117 +464,15 @@ public partial class Dashboard : ContentPage
         return UserID;
     }
 
-    private void Calendar_Item_Clicked(object sender, EventArgs e)
-    {
-        if(sender != null)
-        {
-            Grid grid = sender as Grid;
-            Console.WriteLine(grid.StyleId);
-        }
+    //private void Calendar_Item_Clicked(object sender, EventArgs e)
+    //{
+    //    if(sender != null)
+    //    {
+    //        Grid grid = sender as Grid;
+    //        Console.WriteLine(grid.StyleId);
+    //    }
 
-    }
-
-    private void Calendar_Clicked(object sender, EventArgs e)
-    {
-        if (calendarGrid.IsVisible)
-        {
-            calendarGrid.IsVisible = false;
-            Console.WriteLine("Row Definition Count: " + calendarGrid.RowDefinitions.Count.ToString());
-            if (calendarGrid.RowDefinitions.Count > 4)
-            {
-                int lastRowIndex = calendarGrid.RowDefinitions.Count - 1;
-                for (int i = lastRowIndex; i >= 4 ; i--)
-                {
-                    Console.WriteLine("Last Row Index deleted: " + lastRowIndex.ToString());
-                    calendarGrid.RowDefinitions.RemoveAt(lastRowIndex);
-                }
-
-            }
-        }
-        else
-        {
-            first_name_label.Text = "Check your monthly breakdown!";
-            first_name_label.HorizontalOptions = LayoutOptions.Center;
-            nav_bar_grid.IsVisible = false;
-            current_payperiod_dashboard_grid.IsVisible = false;
-            calendarGrid.IsVisible = true;
-            //Sunday = 0, Monday = 1, Tuesday = 2, etc.
-
-            int dayOfWeek = Convert.ToInt32(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).DayOfWeek);
-            int daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
-
-
-            if (dayOfWeek + daysInMonth > 28)
-            {
-                calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
-            }
-
-            if (dayOfWeek + daysInMonth > 35)
-            {
-                calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
-            }
-
-
-                for (int j = dayOfWeek; j < daysInMonth + dayOfWeek; j++)
-                {
-                Grid grid = new Grid()
-                {
-                    RowDefinitions =
-            {
-                new RowDefinition { Height = new GridLength(30) },
-                new RowDefinition { Height = new GridLength(2, GridUnitType.Star) }
-            },
-                    ColumnDefinitions =
-                {
-                new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
-
-                },
-                    //Assign StyleId so object can be addressed later
-                    StyleId = (j - dayOfWeek + 1).ToString()
-
-
-                };
-
-                    //Assign background color to light blue for current day
-                    if(grid.StyleId == DateTime.Now.Day.ToString())
-                {
-                    grid.BackgroundColor = Colors.LightBlue;
-                }
-                else
-                {
-                    grid.BackgroundColor = Colors.WhiteSmoke;
-                }
-
-
-
-                    //Assign Label with the day of the month
-                Label label = new Label
-                {
-                    TextColor = Colors.Black,
-                    Text = $" {(j - dayOfWeek + 1).ToString()}"
-                };
-                Label label2 = new Label
-                {
-                    TextColor = Colors.Black,
-                    FontSize = 10,
-                    Text = $"1 Income",
-                    HorizontalTextAlignment = TextAlignment.Center
-                };
-
-                var tapGesture = new TapGestureRecognizer();
-                tapGesture.Tapped += (s, e) =>
-                {
-                    Calendar_Item_Clicked(s, e);
-                };
-                grid.GestureRecognizers.Add(tapGesture);
-                    grid.Add(label, 0, 0);
-                    grid.Add(label2, 0, 1);
-                    calendarGrid.Add(grid, j % 7, (int)Math.Floor((double)j / 7));
-                }
-
-
-        }
-    }
+    //}
 
     /*
     private async Task DoMonthlyCalculation()
@@ -707,5 +616,109 @@ public partial class Dashboard : ContentPage
         }
 
         return runningTotal;
+    }
+
+    private async void Calendar_Clicked(object sender, EventArgs e)
+    {
+        CalendarPage calendar = new CalendarPage();
+        await Navigation.PushAsync(calendar);
+        //if (calendarGrid.IsVisible)
+        //{
+        //    calendarGrid.IsVisible = false;
+        //    Console.WriteLine("Row Definition Count: " + calendarGrid.RowDefinitions.Count.ToString());
+        //    if (calendarGrid.RowDefinitions.Count > 4)
+        //    {
+        //        int lastRowIndex = calendarGrid.RowDefinitions.Count - 1;
+        //        for (int i = lastRowIndex; i >= 4 ; i--)
+        //        {
+        //            Console.WriteLine("Last Row Index deleted: " + lastRowIndex.ToString());
+        //            calendarGrid.RowDefinitions.RemoveAt(lastRowIndex);
+        //        }
+
+        //    }
+        //}
+        //else
+        //{
+        //    first_name_label.Text = "Check your monthly breakdown!";
+        //    first_name_label.HorizontalOptions = LayoutOptions.Center;
+        //    nav_bar_grid.IsVisible = false;
+        //    current_payperiod_dashboard_grid.IsVisible = false;
+        //    calendarGrid.IsVisible = true;
+        //    //Sunday = 0, Monday = 1, Tuesday = 2, etc.
+
+        //    int dayOfWeek = Convert.ToInt32(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).DayOfWeek);
+        //    int daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
+
+
+        //    if (dayOfWeek + daysInMonth > 28)
+        //    {
+        //        calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
+        //    }
+
+        //    if (dayOfWeek + daysInMonth > 35)
+        //    {
+        //        calendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
+        //    }
+
+
+        //        for (int j = dayOfWeek; j < daysInMonth + dayOfWeek; j++)
+        //        {
+        //        Grid grid = new Grid()
+        //        {
+        //            RowDefinitions =
+        //    {
+        //        new RowDefinition { Height = new GridLength(30) },
+        //        new RowDefinition { Height = new GridLength(2, GridUnitType.Star) }
+        //    },
+        //            ColumnDefinitions =
+        //        {
+        //        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
+
+        //        },
+        //            //Assign StyleId so object can be addressed later
+        //            StyleId = (j - dayOfWeek + 1).ToString()
+
+
+        //        };
+
+        //            //Assign background color to light blue for current day
+        //            if(grid.StyleId == DateTime.Now.Day.ToString())
+        //        {
+        //            grid.BackgroundColor = Colors.LightBlue;
+        //        }
+        //        else
+        //        {
+        //            grid.BackgroundColor = Colors.WhiteSmoke;
+        //        }
+
+
+
+        //            //Assign Label with the day of the month
+        //        Label label = new Label
+        //        {
+        //            TextColor = Colors.Black,
+        //            Text = $" {(j - dayOfWeek + 1).ToString()}"
+        //        };
+        //        Label label2 = new Label
+        //        {
+        //            TextColor = Colors.Black,
+        //            FontSize = 10,
+        //            Text = $"1 Income",
+        //            HorizontalTextAlignment = TextAlignment.Center
+        //        };
+
+        //        var tapGesture = new TapGestureRecognizer();
+        //        tapGesture.Tapped += (s, e) =>
+        //        {
+        //            Calendar_Item_Clicked(s, e);
+        //        };
+        //        grid.GestureRecognizers.Add(tapGesture);
+        //            grid.Add(label, 0, 0);
+        //            grid.Add(label2, 0, 1);
+        //            calendarGrid.Add(grid, j % 7, (int)Math.Floor((double)j / 7));
+        //        }
+
+
+        //}
     }
 }
