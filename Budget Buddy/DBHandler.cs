@@ -1,8 +1,10 @@
-﻿using Budget_Buddy.Models;
+﻿using Android.Accounts;
+using Budget_Buddy.Models;
 using CommunityToolkit.Maui.Core.Extensions;
 using Npgsql;
 using NpgsqlTypes;
 using System.Collections.ObjectModel;
+using static Java.Util.Jar.Attributes;
 
 namespace Budget_Buddy
 {
@@ -150,6 +152,7 @@ namespace Budget_Buddy
             Bill.BillList.Clear();
             Bill.TempBillList.Clear();
             Bill.RecurringBillList.Clear();
+            Bill.AllBills.Clear();
             if (firstDay.Month != lastDay.Month)
             {
                 await using (var command = dataSource.CreateCommand("SELECT BillID, BillName, Price, DueDate, Paid, Category FROM Bills WHERE UserID = @userid AND (DueDate >= @firstday OR DueDate <= @lastday) ORDER BY DueDate ASC"))
@@ -165,11 +168,13 @@ namespace Budget_Buddy
                             {
                                 Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetInt32(3), reader.GetBoolean(4), reader.GetString(5));
                                 Bill.BillList.Add(bill);
+                                Bill.AllBills.Add(bill);
                             }
                             catch(Exception ex)
                             {
                                 Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetInt32(3), reader.GetBoolean(4), null);
                                 Bill.BillList.Add(bill);
+                                Bill.AllBills.Add(bill);
                             }
 
                         }
@@ -191,11 +196,13 @@ namespace Budget_Buddy
                             {
                                 Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetInt32(3), reader.GetBoolean(4), reader.GetString(5));
                                 Bill.BillList.Add(bill);
+                                Bill.AllBills.Add(bill);
                             }
                             catch (Exception ex)
                             {
                                 Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetInt32(3), reader.GetBoolean(4), null);
                                 Bill.BillList.Add(bill);
+                                Bill.AllBills.Add(bill);
                             }
 
                         }
@@ -213,11 +220,13 @@ namespace Budget_Buddy
                         {
                             Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), reader.GetString(4));
                             Bill.TempBillList.Add(bill);
+                            Bill.AllBills.Add(bill);
                         }
                         catch (Exception ex)
                         {
                             Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), null);
                             Bill.TempBillList.Add(bill);
+                            Bill.AllBills.Add(bill);
                         }
 
                     }
@@ -236,11 +245,13 @@ namespace Budget_Buddy
 
                             Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), reader.GetString(4));
                             Bill.RecurringBillList.Add(bill);
+                            Bill.AllBills.Add(bill);
                         }
                         catch (Exception ex)
                         {
                             Bill bill = new Bill(reader.GetInt32(0), reader.GetString(1), reader.GetDouble(2), reader.GetBoolean(3), null);
                             Bill.RecurringBillList.Add(bill);
+                            Bill.AllBills.Add(bill);
                         }
 
                     }
@@ -1178,6 +1189,39 @@ namespace Budget_Buddy
                 command.Parameters.AddWithValue("@updatedname", updatedName);
                 command.Parameters.AddWithValue("@categoryid", categoryId);
                 await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public static async Task GetAllIncomes(int userId)
+        {
+            ObservableCollection<Income> incomeList = new ObservableCollection<Income>();
+            await using (var cmd = dataSource.CreateCommand("SELECT Amount, IsRecurring, PayDate, PayFrequency, IsPrimary, SetDayOne, SetDayTwo, Name FROM incomes WHERE UserID = ($1)"))
+            {
+                cmd.Parameters.AddWithValue(userId);
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        //If not recurring, make ad-hoc income
+                        if (Convert.ToBoolean(reader[4]) == false)
+                        {
+                            Income income = new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToDateTime(reader[2]));
+                            incomeList.Add(income);
+                            break;
+                        }
+                        else
+                        {
+                            //////////////////////////////////////////////////  NEEDS TO BE FINISHED ///////////////////////////////////////////////
+                            try { Income income = new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToInt32(reader[5]), Convert.ToInt32(reader[6]), true); }
+                            catch { }
+                            if ()
+                            {
+
+                            }
+                        }
+                    }
+                }
+                return result;
             }
         }
     }

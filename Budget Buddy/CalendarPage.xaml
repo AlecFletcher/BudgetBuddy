@@ -2,10 +2,15 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Budget_Buddy.CalendarPage"
+             Loaded="ContentPage_Loaded"
              Title="CalendarPage">
-    <VerticalStackLayout>
-        <Grid IsVisible="false" x:Name="calendarGrid" ColumnDefinitions="*,*,*,*,*,*,*" RowDefinitions="150,150,150,150" BackgroundColor="DarkGrey" ColumnSpacing="5" RowSpacing="5">
+    <ScrollView>
+        <VerticalStackLayout>
+            <Label x:Name="month_Label" FontSize="32" FontAttributes="Bold"></Label>
+            <Grid Padding="5,5" IsVisible="true" x:Name="CalendarGrid" ColumnDefinitions="*,*,*,*,*,*,*" RowDefinitions="150,150,150,150" BackgroundColor="DarkGrey" ColumnSpacing="5" RowSpacing="5">
 
-        </Grid>
-    </VerticalStackLayout>
+            </Grid>
+        </VerticalStackLayout>
+
+    </ScrollView>
 </ContentPage>

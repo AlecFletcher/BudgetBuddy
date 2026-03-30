@@ -79,6 +79,9 @@
 	  <MauiXaml Update="BillDebtReport.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="CalendarDayEntryPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="CalendarPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

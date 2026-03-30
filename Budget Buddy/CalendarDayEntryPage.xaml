@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Budget_Buddy.CalendarDayEntryPage"
+             Title="CalendarDayEntryPage">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label Text="Add Bill" FontAttributes="Bold" />
+
+            <Entry x:Name="BillNameEntry" Placeholder="Bill Name" />
+            <Entry x:Name="BillAmountEntry" Placeholder="Amount" Keyboard="Numeric" />
+            <Button Text="Add Bill" Clicked="OnAddBillClicked" />
+
+            <Label Text="Add Income" FontAttributes="Bold" />
+
+            <Entry x:Name="IncomeSourceEntry" Placeholder="Income Source" />
+            <Entry x:Name="IncomeAmountEntry" Placeholder="Amount" Keyboard="Numeric" />
+            <Button Text="Add Income" Clicked="OnAddIncomeClicked" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

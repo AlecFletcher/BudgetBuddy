@@ -12,6 +12,7 @@ namespace Budget_Buddy.Models
 {
     public class Bill
     {
+        public static ObservableCollection<Bill> AllBills = new ObservableCollection<Bill>();
         public static ObservableCollection<Bill> BillList = new ObservableCollection<Bill>();
         public static ObservableCollection<Bill> TempBillList = new ObservableCollection<Bill>();
         public static ObservableCollection<Bill> RecurringBillList = new ObservableCollection<Bill>();
@@ -22,6 +23,7 @@ namespace Budget_Buddy.Models
         public bool Paid {  get; set; }
         public bool Recurring { get; set; }
         public string? Category { get; set; }
+        public DateTime? SetDate { get; set; }
         public Bill()
         {
 
