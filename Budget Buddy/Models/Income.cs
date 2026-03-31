@@ -18,11 +18,11 @@ namespace Budget_Buddy.Models
         public int? DayTwo { get; set; }
         public bool IsPrimary { get; set; }
 
-        public Income(string name, double amount, DateTime? date)
+        public Income(string name, double amount, DateTime? date, bool isPrimary)
         {
             Name = name;
             Amount = amount;
-            IsPrimary = false;
+            IsPrimary = isPrimary;
             PayDate = date;
         }
 

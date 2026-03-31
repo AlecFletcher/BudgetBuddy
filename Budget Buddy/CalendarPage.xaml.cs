@@ -13,6 +13,17 @@ public partial class CalendarPage : ContentPage
     }
     private void ContentPage_Loaded(object sender, EventArgs e)
     {
+        if (CalendarGrid.RowDefinitions.Count > 4)
+        {
+            int lastRowIndex = CalendarGrid.RowDefinitions.Count - 1;
+            for (int i = lastRowIndex; i >= 4; i--)
+            {
+                Console.WriteLine("Last Row Index deleted: " + lastRowIndex.ToString());
+                CalendarGrid.RowDefinitions.RemoveAt(lastRowIndex);
+            }
+
+        }
+
         int dayOfWeek = Convert.ToInt32(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).DayOfWeek);
         int daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
         month_Label.Text = DateTime.Now.ToString("MMMM");
@@ -22,24 +33,31 @@ public partial class CalendarPage : ContentPage
 
         if (dayOfWeek + daysInMonth > 28)
         {
-            CalendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
+            CalendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(100) });
         }
 
         if (dayOfWeek + daysInMonth > 35)
         {
-            CalendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(150) });
+            CalendarGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(100) });
         }
 
 
         GenerateCalendarDays();
     }
 
-    private void Calendar_Item_Clicked(object sender, EventArgs e)
+    private async Task Calendar_Item_Clicked(object sender, EventArgs e)
     {
         if (sender != null)
         {
+
+
+
             Grid grid = sender as Grid;
-            Console.WriteLine(grid.BindingContext.ToString());
+            CalendarDay calendarDay = (CalendarDay)grid.BindingContext;
+
+
+
+            await Navigation.PushAsync(new CalendarDayEntryPage(calendarDay));
         }
 
     }

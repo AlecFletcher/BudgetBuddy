@@ -2,9 +2,41 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Budget_Buddy.CalendarDayEntryPage"
+             xmlns:models="clr-namespace:Budget_Buddy.Models"
+             Loaded="ContentPage_Loaded"
              Title="CalendarDayEntryPage">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="15">
+            <Label x:DataType="models:CalendarDay" x:Name="Day_Label" Text="{Binding Date, StringFormat='{}{0:MMM dd}'}" FontSize="42" HorizontalTextAlignment="Center" FontAttributes="Bold"></Label>
+
+            <Label x:Name="Bill_Label" FontSize="36" IsVisible="False"></Label>
+            <CollectionView x:Name="Bill_CollectionView" x:DataType="models:Bill">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="15">
+                            <Grid ColumnDefinitions="3*,*">
+                                <Label Text="{Binding Name}" Grid.Column="0" FontSize="24"></Label>
+                                <Label Text="{Binding Price, StringFormat='${0}'}" Grid.Column="1" FontSize="24" HorizontalTextAlignment="Center"></Label>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label x:Name="Income_Label" FontSize="36" IsVisible="False"></Label>
+            <CollectionView x:Name="Income_CollectionView" x:DataType="models:Income">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="15">
+                            <Grid ColumnDefinitions="3*,*">
+                                <Label Text="{Binding Name}" Grid.Column="0" FontSize="24"></Label>
+                                <Label Text="{Binding Amount, StringFormat='${0}'}" Grid.Column="1" FontSize="24" HorizontalTextAlignment="Center"></Label>
+                            </Grid>
+                        </Border>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
             <Label Text="Add Bill" FontAttributes="Bold" />
 
@@ -17,6 +49,7 @@
             <Entry x:Name="IncomeSourceEntry" Placeholder="Income Source" />
             <Entry x:Name="IncomeAmountEntry" Placeholder="Amount" Keyboard="Numeric" />
             <Button Text="Add Income" Clicked="OnAddIncomeClicked" />
+
 
         </VerticalStackLayout>
     </ScrollView>

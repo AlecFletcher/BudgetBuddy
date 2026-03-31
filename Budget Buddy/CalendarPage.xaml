@@ -7,7 +7,7 @@
     <ScrollView>
         <VerticalStackLayout>
             <Label x:Name="month_Label" FontSize="32" FontAttributes="Bold"></Label>
-            <Grid Padding="5,5" IsVisible="true" x:Name="CalendarGrid" ColumnDefinitions="*,*,*,*,*,*,*" RowDefinitions="150,150,150,150" BackgroundColor="DarkGrey" ColumnSpacing="5" RowSpacing="5">
+            <Grid Padding="5,5" IsVisible="true" x:Name="CalendarGrid" ColumnDefinitions="*,*,*,*,*,*,*" RowDefinitions="100,100,100,100"  ColumnSpacing="5" RowSpacing="5">
 
             </Grid>
         </VerticalStackLayout>
