@@ -1192,7 +1192,7 @@ namespace Budget_Buddy
             }
         }
 
-        public static async Task GetAllIncomes(int userId)
+        public static async Task<ObservableCollection<Income>> GetAllIncomes(int userId)
         {
             ObservableCollection<Income> incomeList = new ObservableCollection<Income>();
             await using (var cmd = dataSource.CreateCommand("SELECT Amount, IsRecurring, PayDate, PayFrequency, IsPrimary, SetDayOne, SetDayTwo, Name FROM incomes WHERE UserID = ($1)"))
@@ -1202,27 +1202,28 @@ namespace Budget_Buddy
                 {
                     while (await reader.ReadAsync())
                     {
-                        //If not recurring, make ad-hoc income
+                        //If not primary, make ad-hoc income
                         if (Convert.ToBoolean(reader[4]) == false)
                         {
                             Income income = new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToDateTime(reader[2]));
                             incomeList.Add(income);
-                            break;
                         }
                         else
                         {
                             //////////////////////////////////////////////////  NEEDS TO BE FINISHED ///////////////////////////////////////////////
-                            try { Income income = new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToInt32(reader[5]), Convert.ToInt32(reader[6]), true); }
-                            catch { }
-                            if ()
-                            {
-
+                            try { 
+                                Income income = new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToInt32(reader[5]), Convert.ToInt32(reader[6]), true, Convert.ToDateTime(reader[2]));
+                                incomeList.Add(income);
+                            }
+                            catch { 
+                                Income income = new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToInt32(reader[3]), true, Convert.ToDateTime(reader[2]));
+                                incomeList.Add(income);
                             }
                         }
                     }
                 }
-                return result;
             }
+            return incomeList;
         }
     }
 }

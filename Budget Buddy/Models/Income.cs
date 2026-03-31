@@ -26,21 +26,23 @@ namespace Budget_Buddy.Models
             PayDate = date;
         }
 
-        public Income(string name, double amount, int payFrequency, bool isPrimary)
+        public Income(string name, double amount, int payFrequency, bool isPrimary, DateTime payDate)
         {
             Name = name;
             Amount = amount;
             PayFrequency = payFrequency;
             IsPrimary = true;
+            PayDate = payDate;
         }
 
-        public Income(string name, double amount, int setDayOne, int setDayTwo, bool isPrimary)
+        public Income(string name, double amount, int setDayOne, int setDayTwo, bool isPrimary, DateTime payDate)
         {
             Name = name;
             Amount = amount;
             DayOne = setDayOne;
             DayTwo = setDayTwo;
             IsPrimary = true;
+            PayDate = payDate;
         }
 
         public Income(string name, double amount, bool isPrimary)

@@ -1,3 +1,4 @@
+using AndroidX.Core.View;
 using Budget_Buddy.Models;
 using Bumptech.Glide.Load;
 using System.Threading.Tasks;
@@ -43,7 +44,7 @@ public partial class CalendarPage : ContentPage
 
     }
 
-    private void GenerateCalendarDays()
+    private async void GenerateCalendarDays()
     {
         int dayOfWeek = Convert.ToInt32(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).DayOfWeek);
         int daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
@@ -52,15 +53,12 @@ public partial class CalendarPage : ContentPage
             .GroupBy(b => b.DueDay)
             .ToDictionary(g => g.Key, g=> g.ToList());
 
-        foreach(var cal in billsByDate)
-        {
-            Console.WriteLine("Key: " + cal.Key.ToString());
-            foreach(Bill bill in cal.Value)
-            {
-                Console.WriteLine("Value: " + bill.Name);
-            }
-            
-        }
+        await PopulateIncomeList();
+        Console.WriteLine(Income.AllIncomes.Count());
+
+        var incomesByDate = Income.AllIncomes
+            .GroupBy(b => Convert.ToDateTime(b.PayDate))
+            .ToDictionary(g => g.Key, g => g.ToList());
 
         for (int j = dayOfWeek; j < daysInMonth + dayOfWeek; j++)
         {
@@ -69,13 +67,16 @@ public partial class CalendarPage : ContentPage
                 RowDefinitions =
             {
                 new RowDefinition { Height = new GridLength(30) },
-                new RowDefinition { Height = new GridLength(2, GridUnitType.Star) }
+                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
+                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
+                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }
             },
                 ColumnDefinitions =
                 {
                 new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
 
                 },
+
                 //Assign StyleId so object can be addressed later
                 StyleId = (j - dayOfWeek + 1).ToString(),
 
@@ -83,13 +84,19 @@ public partial class CalendarPage : ContentPage
 
             grid.BindingContext = new CalendarDay(new DateTime(DateTime.Now.Year, DateTime.Now.Month, j-dayOfWeek+1));
 
-
             CalendarDay calendarDay = (CalendarDay)grid.BindingContext;
 
+            //Assign bills to each day
             if (billsByDate.TryGetValue(calendarDay.Date.Day, out var bills))
             {
                 foreach (var bill in bills)
                     calendarDay.Bills.Add(bill);
+            }
+
+            if (incomesByDate.TryGetValue(calendarDay.Date, out var incomes))
+            {
+                foreach (var income in incomes)
+                    calendarDay.Incomes.Add(income);
             }
 
             //Assign background color to light blue for current day
@@ -108,7 +115,8 @@ public partial class CalendarPage : ContentPage
             Label label = new Label
             {
                 TextColor = Colors.Black,
-                Text = $" {(j - dayOfWeek + 1).ToString()}"
+                Text = $" {(j - dayOfWeek + 1).ToString()}",
+                FontAttributes = FontAttributes.Bold
             };
 
             
@@ -123,13 +131,33 @@ public partial class CalendarPage : ContentPage
                 Label label2 = new Label
                 {
                     TextColor = Colors.Black,
-                    FontSize = 12,
+                    FontSize = 11,
                     Text = $"{calendarDay.Bills.Count} {billString}",
-                    HorizontalTextAlignment = TextAlignment.Center
+                    HorizontalTextAlignment = TextAlignment.Start,
+                    VerticalTextAlignment = TextAlignment.Center,
+                    Margin = new Thickness(1, 0, 0, 0)
                 };
                 grid.Add(label2, 0, 1);
             }
 
+            if (calendarDay.Incomes.Count > 0)
+            {
+                string incomeString = "income";
+                if (calendarDay.Bills.Count > 1)
+                {
+                    incomeString = "incomes";
+                }
+                Label label2 = new Label
+                {
+                    TextColor = Colors.Black,
+                    FontSize = 11,
+                    Text = $"{calendarDay.Incomes.Count} {incomeString}",
+                    HorizontalTextAlignment = TextAlignment.Start,
+                    VerticalTextAlignment = TextAlignment.Center,
+                    Margin = new Thickness(1,0,0,0)
+                };
+                grid.Add(label2, 0, 2);
+            }
 
             var tapGesture = new TapGestureRecognizer();
             tapGesture.Tapped += (s, e) =>
@@ -145,6 +173,6 @@ public partial class CalendarPage : ContentPage
 
     private async Task PopulateIncomeList()
     {
-        //Income.AllIncomes = await DBHandler
+        Income.AllIncomes = await DBHandler.GetAllIncomes(Dashboard.UserID);
     }
 }
