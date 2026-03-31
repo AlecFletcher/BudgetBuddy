@@ -11,22 +11,16 @@ public partial class CalendarDayEntryPage : ContentPage
 		SelectedDay = calendarDay;
 	}
 
-    private void OnAddBillClicked(object sender, EventArgs e)
-    {
-
-    }
-
-    private void OnAddIncomeClicked(object sender, EventArgs e)
-    {
-
-    }
-
-    private void ContentPage_Loaded(object sender, EventArgs e)
+    private async void ContentPage_Loaded(object sender, EventArgs e)
     {
         Bill_CollectionView.ItemsSource = SelectedDay.Bills;
         Income_CollectionView.ItemsSource = SelectedDay.Incomes;
         Day_Label.BindingContext = SelectedDay;
-        if(SelectedDay.Bills.Count > 0)
+
+        await DBHandler.GetCategories(Dashboard.UserID);
+
+
+        if (SelectedDay.Bills.Count > 0)
         {
             Bill_Label.IsVisible = true;
             Bill_Label.Text = "Bill(s) due:";
@@ -38,6 +32,19 @@ public partial class CalendarDayEntryPage : ContentPage
             Income_Label.Text = "Income(s) received:";
         }
 
+
+    }
+
+    private void AddBillClicked(object sender, EventArgs e)
+    {
+        if(BillNameEntry.Text != "" && BillAmountEntry.Text != "")
+        {
+
+        }
+    }
+
+    private void AddIncomeClicked(object sender, EventArgs e)
+    {
 
     }
 }

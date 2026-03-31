@@ -14,9 +14,9 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Padding="15">
-                            <Grid ColumnDefinitions="3*,*">
+                            <Grid ColumnDefinitions="2*,*">
                                 <Label Text="{Binding Name}" Grid.Column="0" FontSize="24"></Label>
-                                <Label Text="{Binding Price, StringFormat='${0}'}" Grid.Column="1" FontSize="24" HorizontalTextAlignment="Center"></Label>
+                                <Label Text="{Binding Price, StringFormat='{}${0:N2}'}" Grid.Column="1" FontSize="24" HorizontalTextAlignment="Start"></Label>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -28,9 +28,9 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Padding="15">
-                            <Grid ColumnDefinitions="3*,*">
+                            <Grid ColumnDefinitions="2*,*">
                                 <Label Text="{Binding Name}" Grid.Column="0" FontSize="24"></Label>
-                                <Label Text="{Binding Amount, StringFormat='${0}'}" Grid.Column="1" FontSize="24" HorizontalTextAlignment="Center"></Label>
+                                <Label Text="{Binding Amount, StringFormat='{}${0:N2}'}" Grid.Column="1" FontSize="24" HorizontalTextAlignment="Start"></Label>
                             </Grid>
                         </Border>
 
@@ -38,17 +38,21 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Label Text="Add Bill" FontAttributes="Bold" />
+            <Label Text="Add Bill" FontAttributes="Bold" FontSize="32" Margin="0,30,0,0"/>
 
-            <Entry x:Name="BillNameEntry" Placeholder="Bill Name" />
-            <Entry x:Name="BillAmountEntry" Placeholder="Amount" Keyboard="Numeric" />
-            <Button Text="Add Bill" Clicked="OnAddBillClicked" />
+            <Entry x:Name="BillNameEntry" Placeholder="Bill Name" FontSize="24" PlaceholderColor="DarkGrey"/>
+            <Entry x:Name="BillAmountEntry" Placeholder="Amount" Keyboard="Numeric" FontSize="24" PlaceholderColor="DarkGrey"/>
+            <Label Text="Category:" VerticalTextAlignment="End" Margin="0,0,0,-10" FontSize="24" TextColor="DarkGrey"></Label>
+            <Picker x:Name="BillCategoryPicker" ItemsSource="{Binding Source={x:Static models:Category.CategoryStrings}}" FontSize="24"></Picker>
+            <Button Text="Add Bill" Clicked="AddBillClicked" FontSize="24" />
 
-            <Label Text="Add Income" FontAttributes="Bold" />
+            <Label Text="Add Income" FontAttributes="Bold" FontSize="32" Margin="0,30,0,0" />
 
-            <Entry x:Name="IncomeSourceEntry" Placeholder="Income Source" />
-            <Entry x:Name="IncomeAmountEntry" Placeholder="Amount" Keyboard="Numeric" />
-            <Button Text="Add Income" Clicked="OnAddIncomeClicked" />
+            <Entry x:Name="IncomeSourceEntry" Placeholder="Income Source" PlaceholderColor="DarkGrey" FontSize="24" />
+            <Entry x:Name="IncomeAmountEntry" Placeholder="Amount" PlaceholderColor="DarkGrey" Keyboard="Numeric" FontSize="24"/>
+            <Label Text="Category:" VerticalTextAlignment="End" Margin="0,0,0,-10" FontSize="24" TextColor="DarkGrey"></Label>
+            <Picker x:Name="IncomeCategoryPicker" ItemsSource="{Binding Source={x:Static models:Category.CategoryStrings}}" FontSize="24"></Picker>
+            <Button Text="Add Income" Clicked="AddIncomeClicked" FontSize="24"/>
 
 
         </VerticalStackLayout>

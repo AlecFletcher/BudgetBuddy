@@ -147,6 +147,21 @@ namespace Budget_Buddy
             }
         }
 
+        public static async Task AddBill(int userId, string billName, double billPrice, DateTime date, string category)
+        {
+            await using (var command = dataSource.CreateCommand("INSERT INTO Bills (userid, setdate, price, billname, category) VALUES (@userid, @setdate, CAST(@price AS numeric), @billname, '@category')"))
+            {
+                Console.WriteLine("Bill Added");
+                command.Parameters.AddWithValue("@userid", userId);
+                command.Parameters.AddWithValue("@setdate", date);
+                command.Parameters.AddWithValue("@price", billPrice);
+                command.Parameters.AddWithValue("@billname", billName);
+                command.Parameters.AddWithValue("@category", category);
+
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
         public static async Task GenerateBills(int userId, DateTime firstDay, DateTime lastDay)
         {
             Bill.BillList.Clear();
