@@ -1,4 +1,5 @@
 using Budget_Buddy.Models;
+using System.Threading.Tasks;
 
 namespace Budget_Buddy;
 
@@ -35,16 +36,27 @@ public partial class CalendarDayEntryPage : ContentPage
 
     }
 
-    private void AddBillClicked(object sender, EventArgs e)
-    {
-        if(BillNameEntry.Text != "" && BillAmountEntry.Text != "")
-        {
-
-        }
-    }
-
     private void AddIncomeClicked(object sender, EventArgs e)
     {
 
+    }
+
+    private async void AddBillClicked(object sender, EventArgs e)
+    {
+        if (BillNameEntry.Text != "" && BillAmountEntry.Text != "")
+        {
+            string selectedItem = "";
+
+            try { selectedItem = BillCategoryPicker.SelectedItem.ToString(); }
+            catch { }
+            await DBHandler.AddBill(Dashboard.UserID, BillNameEntry.Text, Convert.ToDouble(BillAmountEntry.Text), SelectedDay.Date, selectedItem);
+            Bill bill = new Bill(null, BillNameEntry.Text, Convert.ToDouble(BillAmountEntry.Text), SelectedDay.Date);
+            SelectedDay.Bills.Add(bill);
+            Bill.AllBills.Add(bill);
+
+            BillNameEntry.Text = "";
+            BillAmountEntry.Text = "";
+            BillCategoryPicker.SelectedIndex = Category.AllCategories.Count;
+        }
     }
 }

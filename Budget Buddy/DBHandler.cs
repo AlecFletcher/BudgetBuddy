@@ -149,7 +149,7 @@ namespace Budget_Buddy
 
         public static async Task AddBill(int userId, string billName, double billPrice, DateTime date, string category)
         {
-            await using (var command = dataSource.CreateCommand("INSERT INTO Bills (userid, setdate, price, billname, category) VALUES (@userid, @setdate, CAST(@price AS numeric), @billname, '@category')"))
+            await using (var command = dataSource.CreateCommand("INSERT INTO Bills (userid, setdate, price, billname, category, duedate, paid) VALUES (@userid, @setdate, CAST(@price AS numeric), @billname, @category, @duedate, false)"))
             {
                 Console.WriteLine("Bill Added");
                 command.Parameters.AddWithValue("@userid", userId);
@@ -157,6 +157,7 @@ namespace Budget_Buddy
                 command.Parameters.AddWithValue("@price", billPrice);
                 command.Parameters.AddWithValue("@billname", billName);
                 command.Parameters.AddWithValue("@category", category);
+                command.Parameters.AddWithValue("@duedate", date.Day);
 
                 await command.ExecuteNonQueryAsync();
             }

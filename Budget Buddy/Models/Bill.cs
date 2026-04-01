@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using Android.Webkit;
+using Android.Icu.Util;
 
 namespace Budget_Buddy.Models
 {
@@ -63,6 +64,13 @@ namespace Budget_Buddy.Models
             Price = price;
         }
 
+        public Bill(int? billId, string name, double price, DateTime setDate)
+        {
+            BillID = billId;
+            Name = name;
+            Price = price;
+            SetDate = setDate;
+        }
     }
 
     public class Debt : Bill

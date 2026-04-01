@@ -1,6 +1,7 @@
 using AndroidX.Core.View;
 using Budget_Buddy.Models;
 using Bumptech.Glide.Load;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 namespace Budget_Buddy;
@@ -18,7 +19,6 @@ public partial class CalendarPage : ContentPage
             int lastRowIndex = CalendarGrid.RowDefinitions.Count - 1;
             for (int i = lastRowIndex; i >= 4; i--)
             {
-                Console.WriteLine("Last Row Index deleted: " + lastRowIndex.ToString());
                 CalendarGrid.RowDefinitions.RemoveAt(lastRowIndex);
             }
 
@@ -70,6 +70,8 @@ public partial class CalendarPage : ContentPage
         var billsByDate = Bill.AllBills
             .GroupBy(b => b.DueDay)
             .ToDictionary(g => g.Key, g=> g.ToList());
+        Console.WriteLine("Bills organized. Count = " + billsByDate.Count());
+
 
         await PopulateIncomeList();
         Console.WriteLine(Income.AllIncomes.Count());
