@@ -1,6 +1,7 @@
 using AndroidX.Core.View;
 using Budget_Buddy.Models;
 using Bumptech.Glide.Load;
+using CommunityToolkit.Maui.Core.Extensions;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
@@ -8,12 +9,17 @@ namespace Budget_Buddy;
 
 public partial class CalendarPage : ContentPage
 {
-	public CalendarPage()
+    public static Dictionary<int, ObservableCollection<Bill>> BillsDictionary = new Dictionary<int, ObservableCollection<Bill>>();
+    public static Dictionary<DateTime, ObservableCollection<Income>> IncomesDictionary = new Dictionary<DateTime, ObservableCollection<Income>>();
+
+
+    public CalendarPage()
 	{
 		InitializeComponent();
     }
     private void ContentPage_Loaded(object sender, EventArgs e)
     {
+        Console.WriteLine("Page loaded");
         if (CalendarGrid.RowDefinitions.Count > 4)
         {
             int lastRowIndex = CalendarGrid.RowDefinitions.Count - 1;
@@ -67,18 +73,16 @@ public partial class CalendarPage : ContentPage
         int dayOfWeek = Convert.ToInt32(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).DayOfWeek);
         int daysInMonth = DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
 
-        var billsByDate = Bill.AllBills
+        BillsDictionary = Bill.AllBills
             .GroupBy(b => b.DueDay)
-            .ToDictionary(g => g.Key, g=> g.ToList());
-        Console.WriteLine("Bills organized. Count = " + billsByDate.Count());
+            .ToDictionary(g => g.Key, g=> g.ToObservableCollection());
 
 
         await PopulateIncomeList();
-        Console.WriteLine(Income.AllIncomes.Count());
 
-        var incomesByDate = Income.AllIncomes
+        IncomesDictionary = Income.AllIncomes
             .GroupBy(b => Convert.ToDateTime(b.PayDate))
-            .ToDictionary(g => g.Key, g => g.ToList());
+            .ToDictionary(g => g.Key, g => g.ToObservableCollection());
 
         for (int j = dayOfWeek; j < daysInMonth + dayOfWeek; j++)
         {
@@ -107,13 +111,13 @@ public partial class CalendarPage : ContentPage
             CalendarDay calendarDay = (CalendarDay)grid.BindingContext;
 
             //Assign bills to each day
-            if (billsByDate.TryGetValue(calendarDay.Date.Day, out var bills))
+            if (BillsDictionary.TryGetValue(calendarDay.Date.Day, out var bills))
             {
                 foreach (var bill in bills)
                     calendarDay.Bills.Add(bill);
             }
 
-            if (incomesByDate.TryGetValue(calendarDay.Date, out var incomes))
+            if (IncomesDictionary.TryGetValue(calendarDay.Date, out var incomes))
             {
                 foreach (var income in incomes)
                     calendarDay.Incomes.Add(income);

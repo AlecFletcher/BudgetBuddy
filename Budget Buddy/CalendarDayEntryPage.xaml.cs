@@ -48,7 +48,7 @@ public partial class CalendarDayEntryPage : ContentPage
             string selectedItem = "";
 
             try { selectedItem = BillCategoryPicker.SelectedItem.ToString(); }
-            catch { }
+            catch(NullReferenceException ex) { selectedItem = ""; }
             await DBHandler.AddBill(Dashboard.UserID, BillNameEntry.Text, Convert.ToDouble(BillAmountEntry.Text), SelectedDay.Date, selectedItem);
             Bill bill = new Bill(null, BillNameEntry.Text, Convert.ToDouble(BillAmountEntry.Text), SelectedDay.Date);
             SelectedDay.Bills.Add(bill);

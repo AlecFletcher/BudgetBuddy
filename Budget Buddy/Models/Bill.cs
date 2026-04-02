@@ -70,6 +70,7 @@ namespace Budget_Buddy.Models
             Name = name;
             Price = price;
             SetDate = setDate;
+            DueDay = setDate.Day;
         }
     }
 
