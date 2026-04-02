@@ -72,28 +72,18 @@ namespace Budget_Buddy
             return result;
         }
 
-        public static async Task AddIncome(int userid, bool isRecurring, DateTime payDate, string payFrequency, bool isPrimary, int? setDayOne, int? setDayTwo)
+        public static async Task AddIncome(int userid, bool isRecurring, DateTime payDate, string payFrequency, bool isPrimary, string name, double amount)
         {
-            await using (var command = dataSource.CreateCommand("INSERT INTO Incomes (userid, isrecurring, paydate, payfrequency, isprimary, setdayone, setdaytwo) VALUES(@userid, @isrecurring, @paydate, @payfrequency, @isprimary @setdayone, @setdaytwo,);"))
+            await using (var command = dataSource.CreateCommand("INSERT INTO Incomes (userid, isrecurring, paydate, payfrequency, isprimary, name, amount) VALUES(@userid, @isrecurring, @paydate, @payfrequency, @isprimary, @name, @amount);"))
             {
                 command.Parameters.AddWithValue("@userid", userid);
                 command.Parameters.AddWithValue("@isrecurring", isRecurring);
                 command.Parameters.AddWithValue("@paydate", payDate);
                 command.Parameters.AddWithValue("@payfrequency", payFrequency);
                 command.Parameters.AddWithValue("@isprimary", isPrimary);
-                if (setDayOne == null || setDayTwo == null)
-                {
-                    command.Parameters.AddWithValue("@setdayone", "null");
-                    command.Parameters.AddWithValue("@setdaytwo", "null");
-                }
-                else
-                {
-                    command.Parameters.AddWithValue("@setdayone", setDayOne);
-                    command.Parameters.AddWithValue("@setdaytwo", setDayTwo);
-                }
-
-
-                    await command.ExecuteNonQueryAsync();
+                command.Parameters.AddWithValue("@name", name);
+                command.Parameters.AddWithValue("@amount", amount);
+                await command.ExecuteNonQueryAsync();
             }
         }
 

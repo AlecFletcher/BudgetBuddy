@@ -10,6 +10,7 @@ namespace Budget_Buddy.Models
     public class Income
     {
         public static ObservableCollection<Income> AllIncomes = new ObservableCollection<Income>();
+        public int UserId { get; set; }
         public string Name { get; set; }
         public double Amount { get; set; }
         public DateTime? PayDate { get; set; }
@@ -20,6 +21,17 @@ namespace Budget_Buddy.Models
 
         public Income(string name, double amount, DateTime? date, bool isPrimary)
         {
+            Name = name;
+            Amount = amount;
+            IsPrimary = isPrimary;
+            PayDate = date;
+            DayOne = null;
+            DayTwo = null;
+        }
+
+        public Income(int id, string name, double amount, DateTime? date, bool isPrimary)
+        {
+            UserId = id;
             Name = name;
             Amount = amount;
             IsPrimary = isPrimary;

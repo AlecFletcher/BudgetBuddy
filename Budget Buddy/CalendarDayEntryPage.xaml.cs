@@ -1,5 +1,7 @@
+using Android.Accounts;
 using Budget_Buddy.Models;
 using System.Threading.Tasks;
+using static Java.Util.Jar.Attributes;
 
 namespace Budget_Buddy;
 
@@ -36,9 +38,18 @@ public partial class CalendarDayEntryPage : ContentPage
 
     }
 
-    private void AddIncomeClicked(object sender, EventArgs e)
+    private async void AddIncomeClicked(object sender, EventArgs e)
     {
+        if(IncomeSourceEntry.Text != "" && IncomeAmountEntry.Text != "")
+        {
+            Income income = new Income(IncomeSourceEntry.Text, Convert.ToDouble(IncomeAmountEntry.Text), SelectedDay.Date, false);
+            await DBHandler.AddIncome(Dashboard.UserID, false, (DateTime)income.PayDate, "Not applicable", income.IsPrimary, income.Name, income.Amount);
+            SelectedDay.Incomes.Add(income);
+            Income.AllIncomes.Add(income);
 
+            IncomeAmountEntry.Text = "";
+            IncomeSourceEntry.Text = "";
+        }
     }
 
     private async void AddBillClicked(object sender, EventArgs e)
