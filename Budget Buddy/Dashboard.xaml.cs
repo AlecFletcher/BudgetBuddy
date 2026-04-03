@@ -173,15 +173,20 @@ public partial class Dashboard : ContentPage
     private async void PopulateCurrentPayPeriodGUI()
     {
 
-        
         await DBHandler.GenerateBills(UserID, DBPayday, DBPayday.AddDays(PayFrequency - 1));
-
+        Models.Income.AllIncomes = await DBHandler.GetAllIncomes(UserID);
 
         payperiod_label.Text = $"{ViewPayday.ToString("MM/dd/yy")} - {ViewPayday.AddDays(PayFrequency - 1).ToString("MM/dd/yy")}";
 
         CurrentPayperiodBillTotal = 0;
         foreach (Bill bill in Bill.BillList)
         {
+            ///////////////////////// LEFT OFF HERE ///////////////////////////////////////
+            if(bill.SetDate != null )
+            {
+                DateTime billDate = (DateTime)bill.SetDate;
+
+            }
             CurrentPayperiodBillTotal += bill.Price;
         }
         foreach (Bill bill in Bill.TempBillList)
