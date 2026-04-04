@@ -70,4 +70,15 @@ public partial class CalendarDayEntryPage : ContentPage
             BillCategoryPicker.SelectedIndex = Category.AllCategories.Count;
         }
     }
+
+
+
+    private async void Delete_Income_Clicked(object sender, EventArgs e)
+    {
+        ImageButton imageButton = sender as ImageButton;
+        Income income = (Income)imageButton.BindingContext;
+        await DBHandler.DeleteIncome(income);
+        Income.AllIncomes.Remove(income);
+        SelectedDay.Incomes.Remove(income);
+    }
 }

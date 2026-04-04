@@ -79,13 +79,11 @@ public partial class CalendarPage : ContentPage
 
 
         await PopulateIncomeList();
-        Console.WriteLine("Incomes added");
 
         IncomesDictionary = Income.AllIncomes
             .GroupBy(b => Convert.ToDateTime(b.PayDate))
             .ToDictionary(g => g.Key, g => g.ToObservableCollection());
 
-        Console.WriteLine("Incomes sorted");
 
         for (int j = dayOfWeek; j < daysInMonth + dayOfWeek; j++)
         {

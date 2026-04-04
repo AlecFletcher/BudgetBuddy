@@ -28,9 +28,10 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Padding="15">
-                            <Grid ColumnDefinitions="2*,*">
-                                <Label Text="{Binding Name}" Grid.Column="0" FontSize="24"></Label>
-                                <Label Text="{Binding Amount, StringFormat='{}${0:N2}'}" Grid.Column="1" FontSize="24" HorizontalTextAlignment="Start"></Label>
+                            <Grid ColumnDefinitions="3*,2*,50">
+                                <Label Text="{Binding Name}" Grid.Column="0" FontSize="24" VerticalTextAlignment="Center"></Label>
+                                <Label Text="{Binding Amount, StringFormat='{}${0:N2}'}" Grid.Column="1" FontSize="24" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"></Label>
+                                <ImageButton Source="trashcan.png" Grid.Column="3" HeightRequest="50" IsVisible="{Binding InvertedIsPrimary}" Clicked="Delete_Income_Clicked" VerticalOptions="Center" ></ImageButton>
                             </Grid>
                         </Border>
 

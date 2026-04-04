@@ -87,6 +87,15 @@ namespace Budget_Buddy
             }
         }
 
+        public static async Task DeleteIncome(Income income)
+        {
+            await using (var command = dataSource.CreateCommand("DELETE FROM Incomes WHERE incomeid = @incomeid"))
+            {
+                command.Parameters.AddWithValue("@incomeid", income.IncomeId);
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
         //UPDATE TO PUDATE BASED ON ID --DONE CHANGED
         public static async Task UpdatePayDay(int incomeid, DateTime currentPayday)
         {
@@ -1201,7 +1210,7 @@ namespace Budget_Buddy
         public static async Task<ObservableCollection<Income>> GetAllIncomes(int userId)
         {
             ObservableCollection<Income> incomeList = new ObservableCollection<Income>();
-            await using (var cmd = dataSource.CreateCommand("SELECT Amount, IsRecurring, PayDate, PayFrequency, IsPrimary, SetDayOne, SetDayTwo, Name FROM incomes WHERE UserID = ($1)"))
+            await using (var cmd = dataSource.CreateCommand("SELECT Amount, IsRecurring, PayDate, PayFrequency, IsPrimary, SetDayOne, SetDayTwo, Name, IncomeId FROM incomes WHERE UserID = ($1)"))
             {
                 cmd.Parameters.AddWithValue(userId);
                 await using (var reader = await cmd.ExecuteReaderAsync())
@@ -1211,7 +1220,7 @@ namespace Budget_Buddy
                         //If not primary, make ad-hoc income
                         if (Convert.ToBoolean(reader[4]) == false)
                         {
-                            Income income = new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToDateTime(reader[2]), false);
+                            Income income = new Income(Convert.ToInt32(reader[8]), Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToDateTime(reader[2]), false);
                             incomeList.Add(income);
                         }
                         else
@@ -1219,15 +1228,15 @@ namespace Budget_Buddy
                             try { 
                                 int DayOne = Convert.ToInt32(reader[5]);
                                 int DayTwo = Convert.ToInt32(reader[6]);
-                                Income income = new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), new DateTime(DateTime.Now.Year, DateTime.Now.Month, DayOne), true);
+                                Income income = new Income(Convert.ToInt32(reader[8]), Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), new DateTime(DateTime.Now.Year, DateTime.Now.Month, DayOne), true);
                                 incomeList.Add(income);
 
-                                Income income2 = new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), new DateTime(DateTime.Now.Year, DateTime.Now.Month, DayTwo), true);
+                                Income income2 = new Income(Convert.ToInt32(reader[8]), Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), new DateTime(DateTime.Now.Year, DateTime.Now.Month, DayTwo), true);
                                 incomeList.Add(income2);
                             }
                             catch { 
                                 int PayFrequency = Convert.ToInt32(reader[3]);
-                                Income income = new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToInt32(reader[3]), true, Convert.ToDateTime(reader[2]));
+                                Income income = new Income(Convert.ToInt32(reader[8]), Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToInt32(reader[3]), true, Convert.ToDateTime(reader[2]));
                                 incomeList.Add(income);
 
                                 DateTime trackingDate = Convert.ToDateTime(reader[2]);
@@ -1237,14 +1246,14 @@ namespace Budget_Buddy
 
                                 while(trackingDate.Month == DateTime.Now.Month)
                                 {
-                                    incomeList.Add(new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToInt32(reader[3]), true, trackingDate));
+                                    incomeList.Add(new Income(Convert.ToInt32(reader[8]), Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToInt32(reader[3]), true, trackingDate));
                                     trackingDate = trackingDate.AddDays(-PayFrequency);
                                 }
 
                                 trackingDate = trackingDate.AddDays(PayFrequency);
                                 while (trackingDate.Month == DateTime.Now.Month)
                                 {
-                                    incomeList.Add(new Income(Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToInt32(reader[3]), true, trackingDate));
+                                    incomeList.Add(new Income(Convert.ToInt32(reader[8]), Convert.ToString(reader[7]), Convert.ToDouble(reader[0]), Convert.ToInt32(reader[3]), true, trackingDate));
                                     trackingDate = trackingDate.AddDays(PayFrequency);
                                 }
                             }

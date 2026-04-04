@@ -11,6 +11,7 @@ namespace Budget_Buddy.Models
     {
         public static ObservableCollection<Income> AllIncomes = new ObservableCollection<Income>();
         public int UserId { get; set; }
+        public int IncomeId { get; set; }
         public string Name { get; set; }
         public double Amount { get; set; }
         public DateTime? PayDate { get; set; }
@@ -18,12 +19,14 @@ namespace Budget_Buddy.Models
         public int? DayOne { get; set; }
         public int? DayTwo { get; set; }
         public bool IsPrimary { get; set; }
+        public bool InvertedIsPrimary { get; set; }
 
         public Income(string name, double amount, DateTime? date, bool isPrimary)
         {
             Name = name;
             Amount = amount;
             IsPrimary = isPrimary;
+            InvertedIsPrimary = !isPrimary;
             PayDate = date;
             DayOne = null;
             DayTwo = null;
@@ -31,10 +34,11 @@ namespace Budget_Buddy.Models
 
         public Income(int id, string name, double amount, DateTime? date, bool isPrimary)
         {
-            UserId = id;
+            IncomeId = id;
             Name = name;
             Amount = amount;
             IsPrimary = isPrimary;
+            InvertedIsPrimary = !isPrimary;
             PayDate = date;
         }
 
@@ -44,6 +48,19 @@ namespace Budget_Buddy.Models
             Amount = amount;
             PayFrequency = payFrequency;
             IsPrimary = true;
+            InvertedIsPrimary = !isPrimary;
+            PayDate = payDate;
+        }
+
+
+        public Income(int id, string name, double amount, int payFrequency, bool isPrimary, DateTime payDate)
+        {
+            IncomeId = id;
+            Name = name;
+            Amount = amount;
+            PayFrequency = payFrequency;
+            IsPrimary = true;
+            InvertedIsPrimary = !isPrimary;
             PayDate = payDate;
         }
 
@@ -54,6 +71,7 @@ namespace Budget_Buddy.Models
             DayOne = setDayOne;
             DayTwo = setDayTwo;
             IsPrimary = true;
+            InvertedIsPrimary = !isPrimary;
             PayDate = payDate;
         }
 
@@ -62,6 +80,7 @@ namespace Budget_Buddy.Models
             Name = name;
             Amount = amount;
             IsPrimary = isPrimary;
+            InvertedIsPrimary = !isPrimary;
             PayDate = null;
         }
     }

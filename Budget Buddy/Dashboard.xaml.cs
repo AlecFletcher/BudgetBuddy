@@ -172,6 +172,7 @@ public partial class Dashboard : ContentPage
 
     private async void PopulateCurrentPayPeriodGUI()
     {
+        Console.WriteLine("PopulateCurrentPayPeriodGUI ran");
 
         await DBHandler.GenerateBills(UserID, DBPayday, DBPayday.AddDays(PayFrequency - 1));
         Models.Income.AllIncomes = await DBHandler.GetAllIncomes(UserID);
@@ -182,20 +183,64 @@ public partial class Dashboard : ContentPage
         foreach (Bill bill in Bill.BillList)
         {
             ///////////////////////// LEFT OFF HERE ///////////////////////////////////////
-            if(bill.SetDate != null )
+            if(bill.SetDate != null)
             {
                 DateTime billDate = (DateTime)bill.SetDate;
-
+                if (billDate.Date >= DBPayday || billDate.Date <= DBPayday.AddDays(PayFrequency))
+                {
+                    CurrentPayperiodBillTotal += bill.Price;
+                    break;
+                }
+                else
+                {
+                    break;
+                }
             }
             CurrentPayperiodBillTotal += bill.Price;
         }
         foreach (Bill bill in Bill.TempBillList)
         {
+
+            if (bill.SetDate != null)
+            {
+                DateTime billDate = (DateTime)bill.SetDate;
+                if (billDate.Date >= DBPayday || billDate.Date <= DBPayday.AddDays(PayFrequency))
+                {
+                    CurrentPayperiodBillTotal += bill.Price;
+                    break;
+                }
+                else
+                {
+                    break;
+                }
+            }
             CurrentPayperiodBillTotal += bill.Price;
         }
         foreach (Bill bill in Bill.RecurringBillList)
         {
+            if (bill.SetDate != null)
+            {
+                DateTime billDate = (DateTime)bill.SetDate;
+                if (billDate.Date >= DBPayday || billDate.Date <= DBPayday.AddDays(PayFrequency))
+                {
+                    CurrentPayperiodBillTotal += bill.Price;
+                    break;
+                }
+                else
+                {
+                    break;
+                }
+            }
             CurrentPayperiodBillTotal += bill.Price;
+        }
+
+        foreach(Models.Income income in Models.Income.AllIncomes)
+        {
+            if(income.PayDate != null && income.PayDate >= DBPayday && income.PayDate <= DBPayday.AddDays(PayFrequency) && !income.IsPrimary)
+            {
+                Income += income.Amount;
+                Console.WriteLine("Income added");
+            }
         }
 
         await DBHandler.UpdateBillAndDebtDollarAmount(UserID, Income - CurrentPayperiodBillTotal, DebtPercent, SavingsPercent);
@@ -332,7 +377,6 @@ public partial class Dashboard : ContentPage
 
     private async void ContentPage_Loaded(object sender, EventArgs e)
     {
-
 
 
                  ////////////////////////// Crash Test ////////////////////////////////////
