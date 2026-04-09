@@ -78,9 +78,7 @@ public partial class Dashboard : ContentPage
 
             case "BiMonthly":
                 PayFrequencyIndex = 3;
-                List<int> dayList = await DBHandler.GetSetDays(UserID);
-                SetDayOne = dayList[0];
-                SetDayTwo = dayList[1];
+                // SetDayOne and SetDayTwo are now populated from GetDashboardDataAsync via PopulateCurrentPayPeriodGUI
                 //Current payday is setDayOne
                 if (DBPayday.Day == SetDayOne)
                 {
@@ -170,73 +168,59 @@ public partial class Dashboard : ContentPage
         PopulateCurrentPayPeriodGUI();
     }
 
-    private async void PopulateCurrentPayPeriodGUI()
+    private async Task PopulateCurrentPayPeriodGUI()
     {
         Console.WriteLine("PopulateCurrentPayPeriodGUI ran");
 
-        await DBHandler.GenerateBills(UserID, DBPayday, DBPayday.AddDays(PayFrequency - 1));
-        Models.Income.AllIncomes = await DBHandler.GetAllIncomes(UserID);
+        var dashboardData = await DBHandler.GetDashboardDataAsync(UserID, DBPayday, DBPayday.AddDays(PayFrequency - 1));
+
+        // Use Clear and Add to maintain bindings for ObservableCollections
+        UpdateCollection(Bill.BillList, dashboardData.CurrentPeriodBills);
+        UpdateCollection(Bill.TempBillList, dashboardData.TempBills);
+        UpdateCollection(Bill.RecurringBillList, dashboardData.RecurringBills);
+        UpdateCollection(Debt.DebtList, dashboardData.Debts);
+        UpdateCollection(Category.AllCategories, dashboardData.Categories);
+        UpdateCollection(Models.Income.AllIncomes, dashboardData.Incomes);
+
+        UserName = dashboardData.UserName;
+        Balance = dashboardData.Balance;
+        savings_paid_checkbox.IsChecked = dashboardData.SavingsPaid;
+        debt_paid_checkbox.IsChecked = dashboardData.DebtPaid;
+        SavingsPercent = dashboardData.SavingsPercent / 100;
+        DebtPercent = dashboardData.DebtPercent / 100;
+        Income = dashboardData.PrimaryIncomeAmount;
+        PrimaryIncomeId = dashboardData.PrimaryIncomeId;
+        SetDayOne = dashboardData.SetDayOne;
+        SetDayTwo = dashboardData.SetDayTwo;
+
+        bill_collectionview.ItemsSource = Bill.BillList;
+        tempbill_collectionview.ItemsSource = Bill.TempBillList;
+        recurringbill_collectionview.ItemsSource = Bill.RecurringBillList;
 
         payperiod_label.Text = $"{ViewPayday.ToString("MM/dd/yy")} - {ViewPayday.AddDays(PayFrequency - 1).ToString("MM/dd/yy")}";
 
         CurrentPayperiodBillTotal = 0;
-        foreach (Bill bill in Bill.BillList)
-        {
-            ///////////////////////// LEFT OFF HERE ///////////////////////////////////////
-            if(bill.SetDate != null)
-            {
-                DateTime billDate = (DateTime)bill.SetDate;
-                if (billDate.Date >= DBPayday || billDate.Date <= DBPayday.AddDays(PayFrequency))
-                {
-                    CurrentPayperiodBillTotal += bill.Price;
-                    break;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            CurrentPayperiodBillTotal += bill.Price;
-        }
-        foreach (Bill bill in Bill.TempBillList)
-        {
+        var allPeriodBills = Bill.BillList.Concat(Bill.TempBillList).Concat(Bill.RecurringBillList);
 
-            if (bill.SetDate != null)
-            {
-                DateTime billDate = (DateTime)bill.SetDate;
-                if (billDate.Date >= DBPayday || billDate.Date <= DBPayday.AddDays(PayFrequency))
-                {
-                    CurrentPayperiodBillTotal += bill.Price;
-                    break;
-                }
-                else
-                {
-                    break;
-                }
-            }
-            CurrentPayperiodBillTotal += bill.Price;
-        }
-        foreach (Bill bill in Bill.RecurringBillList)
+        foreach (Bill bill in allPeriodBills)
         {
             if (bill.SetDate != null)
             {
                 DateTime billDate = (DateTime)bill.SetDate;
-                if (billDate.Date >= DBPayday || billDate.Date <= DBPayday.AddDays(PayFrequency))
+                if (billDate.Date >= DBPayday && billDate.Date <= DBPayday.AddDays(PayFrequency))
                 {
                     CurrentPayperiodBillTotal += bill.Price;
-                    break;
-                }
-                else
-                {
-                    break;
                 }
             }
-            CurrentPayperiodBillTotal += bill.Price;
+            else
+            {
+                CurrentPayperiodBillTotal += bill.Price;
+            }
         }
 
-        foreach(Models.Income income in Models.Income.AllIncomes)
+        foreach (Models.Income income in Models.Income.AllIncomes)
         {
-            if(income.PayDate != null && income.PayDate >= DBPayday && income.PayDate <= DBPayday.AddDays(PayFrequency) && !income.IsPrimary)
+            if (income.PayDate != null && income.PayDate >= DBPayday && income.PayDate <= DBPayday.AddDays(PayFrequency) && !income.IsPrimary)
             {
                 Income += income.Amount;
                 Console.WriteLine("Income added");
@@ -244,17 +228,28 @@ public partial class Dashboard : ContentPage
         }
 
         await DBHandler.UpdateBillAndDebtDollarAmount(UserID, Income - CurrentPayperiodBillTotal, DebtPercent, SavingsPercent);
-        SavingsDollarAmount = await DBHandler.GetSavingsDollarAmount(UserID);
-        DebtDollarAmount = await DBHandler.GetDebtDollarAmount(UserID);
+
+        // We can calculate these instead of fetching again since we have the data
+        SavingsDollarAmount = Math.Round((Income - CurrentPayperiodBillTotal) * SavingsPercent, 2);
+        DebtDollarAmount = Math.Round((Income - CurrentPayperiodBillTotal) * DebtPercent, 2);
 
         RecalculateFunds(Balance);
 
-        double debtAmount = DebtDollarAmount;
-        double savingAmount = SavingsDollarAmount;
-        current_savings_amount_label.Text = $"${savingAmount.ToString("N2")}";
-        current_debt_amount_label.Text = $"${debtAmount.ToString("N2")}";
+        current_savings_amount_label.Text = $"${SavingsDollarAmount.ToString("N2")}";
+        current_debt_amount_label.Text = $"${DebtDollarAmount.ToString("N2")}";
+        first_name_label.Text = $"Welcome, {UserName}!";
+        current_balance_entry.Text = Balance.ToString("N2");
 
         loading_icon.IsVisible = false;
+    }
+
+    private void UpdateCollection<T>(ObservableCollection<T> target, ObservableCollection<T> source)
+    {
+        target.Clear();
+        foreach (var item in source)
+        {
+            target.Add(item);
+        }
     }
 
 
@@ -377,42 +372,18 @@ public partial class Dashboard : ContentPage
 
     private async void ContentPage_Loaded(object sender, EventArgs e)
     {
+        var initialData = await DBHandler.GetInitialDataAsync(UserID);
+        DBPayday = initialData.PrimaryPayday;
+        PayFrequencyString = initialData.PayFrequency;
+        PrimaryIncomeId = initialData.PrimaryIncomeId;
+        SetDayOne = initialData.SetDayOne;
+        SetDayTwo = initialData.SetDayTwo;
 
-
-                 ////////////////////////// Crash Test ////////////////////////////////////
-        //Figure out why tf this block stops crashing when going back to dashboard from update bills//
-
-        Debt.DebtList = await DBHandler.GenerateDebtList(UserID);
-        Bill.TempBillList = await DBHandler.GetAllTempBills(UserID);
-        Bill.RecurringBillList = await DBHandler.GetAllRecurringBills(UserID);
-
-                //////////////////////////////////////////////////////////////////////////
-
-
-        await DBHandler.GetCategories(UserID);
-        bill_collectionview.ItemsSource = Bill.BillList;
-        tempbill_collectionview.ItemsSource = Bill.TempBillList;
-        recurringbill_collectionview.ItemsSource = Bill.RecurringBillList;
-        UserName = await DBHandler.GetNameOfUser(UserID);
-        DBPayday = await DBHandler.GetPayday(UserID);
         other_payperiod_dashboard_grid.IsVisible = false;
         current_payperiod_dashboard_grid.IsVisible = true;
         remaining_balance_grid.IsVisible = false;
         current_balance_grid.IsVisible = true;
-        savings_paid_checkbox.IsChecked = await DBHandler.GetSavingsPaid(UserID);
-        debt_paid_checkbox.IsChecked = await DBHandler.GetDebtPaid(UserID);
-        first_name_label.Text = $"Welcome, {UserName}!";
         first_name_label.HorizontalOptions = LayoutOptions.Center;
-        Balance = await DBHandler.GetBalance(UserID);
-        current_balance_entry.Text = Balance.ToString("N2");
-        // Indices as follows  0-Income, 1-Savings Percent, 2-Debt Percent
-        PreferencesList = await DBHandler.GetUserPreferences(UserID);
-        Income = PreferencesList[0];
-        SavingsPercent = PreferencesList[1] / 100;
-        DebtPercent = PreferencesList[2] / 100;
-        PrimaryIncomeId = (int)PreferencesList[3];
-
-        PayFrequencyString = await DBHandler.GetPayFrequency(UserID);
 
         CheckUpdatePayday();
     }

@@ -24,6 +24,227 @@ namespace Budget_Buddy
             dataSource = NpgsqlDataSource.Create(postgresConnectionString);
         }
 
+        /// <summary>
+        /// Fetches only the essential user data required for initial calculations.
+        /// </summary>
+        public static async Task<DashboardData> GetInitialDataAsync(int userId)
+        {
+            var data = new DashboardData();
+            await using (var cmd = dataSource.CreateCommand())
+            {
+                cmd.CommandText = @"
+                    SELECT paydate, payfrequency, incomeid, setdayone, setdaytwo
+                    FROM incomes
+                    WHERE UserID = @userid AND isprimary = true
+                    LIMIT 1;";
+                cmd.Parameters.AddWithValue("@userid", userId);
+
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        data.PrimaryPayday = reader.IsDBNull(0) ? DateTime.MinValue : reader.GetDateTime(0);
+                        data.PayFrequency = reader.IsDBNull(1) ? "" : Convert.ToString(reader[1]);
+                        data.PrimaryIncomeId = reader.IsDBNull(2) ? 0 : reader.GetInt32(2);
+                        data.SetDayOne = reader.IsDBNull(3) ? 0 : reader.GetInt32(3);
+                        data.SetDayTwo = reader.IsDBNull(4) ? 0 : reader.GetInt32(4);
+                    }
+                }
+            }
+            return data;
+        }
+
+        /// <summary>
+        /// Fetches all data required for the Dashboard in a single database round-trip.
+        /// This is more efficient than making multiple separate calls.
+        /// </summary>
+        public static async Task<DashboardData> GetDashboardDataAsync(int userId, DateTime firstDay, DateTime lastDay)
+        {
+            var data = new DashboardData();
+
+            await using (var cmd = dataSource.CreateCommand())
+            {
+                // We combine multiple SELECT statements. Npgsql allows reading multiple result sets using reader.NextResultAsync().
+                cmd.CommandText = @"
+                    -- Result Set 1: User Info & Preferences
+                    SELECT u.FirstName, p.currentbalance, p.savingspaid, p.debtpaid, p.savingspercent, p.debtpercent
+                    FROM Users u
+                    LEFT JOIN UserPreferences p ON u.UserID = p.UserID
+                    WHERE u.UserID = @userid;
+
+                    -- Result Set 2: Primary Income
+                    SELECT amount, paydate, payfrequency, incomeid, setdayone, setdaytwo FROM incomes WHERE UserID = @userid AND isprimary = true LIMIT 1;
+
+                    -- Result Set 3: Bills for the current period
+                    SELECT BillID, BillName, Price, DueDate, Paid, Category FROM Bills
+                    WHERE UserID = @userid AND PrincipalBalance IS NULL
+                    AND " + (firstDay.Month != lastDay.Month ? "(DueDate >= @firstday OR DueDate <= @lastday)" : "(DueDate >= @firstday AND DueDate <= @lastday)") + @"
+                    ORDER BY DueDate ASC;
+
+                    -- Result Set 4: Temp Bills
+                    SELECT BillID, BillName, Price, Paid, Category FROM TempBills WHERE UserID = @userid;
+
+                    -- Result Set 5: Recurring Bills
+                    SELECT BillID, BillName, Price, Paid, Category FROM RecurringBills WHERE UserID = @userid;
+
+                    -- Result Set 6: Debts
+                    SELECT BillID, BillName, Price, DueDate, PrincipalBalance, Category FROM Bills WHERE UserID = @userid AND PrincipalBalance IS NOT NULL;
+
+                    -- Result Set 7: Categories
+                    SELECT id, name FROM categories WHERE UserID = @userid ORDER BY name ASC;
+
+                    -- Result Set 8: All Incomes (for calculation)
+                    SELECT Amount, IsRecurring, PayDate, PayFrequency, IsPrimary, SetDayOne, SetDayTwo, Name, IncomeId FROM incomes WHERE UserID = @userid;";
+
+                cmd.Parameters.AddWithValue("@userid", userId);
+                cmd.Parameters.AddWithValue("@firstday", firstDay.Day);
+                cmd.Parameters.AddWithValue("@lastday", lastDay.Day);
+
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    // 1. User Info & Preferences
+                    if (await reader.ReadAsync())
+                    {
+                        data.UserName = reader.IsDBNull(0) ? "" : reader.GetString(0);
+                        data.Balance = reader.IsDBNull(1) ? 0 : reader.GetDouble(1);
+                        data.SavingsPaid = reader.IsDBNull(2) ? false : reader.GetBoolean(2);
+                        data.DebtPaid = reader.IsDBNull(3) ? false : reader.GetBoolean(3);
+                        data.SavingsPercent = reader.IsDBNull(4) ? 0 : Convert.ToDouble(reader[4]);
+                        data.DebtPercent = reader.IsDBNull(5) ? 0 : Convert.ToDouble(reader[5]);
+                    }
+
+                    // 2. Primary Income
+                    if (await reader.NextResultAsync() && await reader.ReadAsync())
+                    {
+                        data.PrimaryIncomeAmount = reader.IsDBNull(0) ? 0 : reader.GetDouble(0);
+                        data.PrimaryPayday = reader.IsDBNull(1) ? DateTime.MinValue : reader.GetDateTime(1);
+                        data.PayFrequency = reader.IsDBNull(2) ? "" : Convert.ToString(reader[2]);
+                        data.PrimaryIncomeId = reader.IsDBNull(3) ? 0 : reader.GetInt32(3);
+                        data.SetDayOne = reader.IsDBNull(4) ? 0 : reader.GetInt32(4);
+                        data.SetDayTwo = reader.IsDBNull(5) ? 0 : reader.GetInt32(5);
+                    }
+
+                    // 3. Current Period Bills
+                    if (await reader.NextResultAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            data.CurrentPeriodBills.Add(new Bill(
+                                reader.GetInt32(0),
+                                reader.GetString(1),
+                                reader.GetDouble(2),
+                                reader.GetInt32(3),
+                                reader.GetBoolean(4),
+                                reader.IsDBNull(5) ? null : reader.GetString(5)));
+                        }
+                    }
+
+                    // 4. Temp Bills
+                    if (await reader.NextResultAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            data.TempBills.Add(new Bill(
+                                reader.GetInt32(0),
+                                reader.GetString(1),
+                                reader.GetDouble(2),
+                                reader.GetBoolean(3),
+                                reader.IsDBNull(4) ? null : reader.GetString(4)));
+                        }
+                    }
+
+                    // 5. Recurring Bills
+                    if (await reader.NextResultAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            data.RecurringBills.Add(new Bill(
+                                reader.GetInt32(0),
+                                reader.GetString(1),
+                                reader.GetDouble(2),
+                                reader.GetBoolean(3),
+                                reader.IsDBNull(4) ? null : reader.GetString(4)));
+                        }
+                    }
+
+                    // 6. Debts
+                    if (await reader.NextResultAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            data.Debts.Add(new Debt(
+                                reader.GetInt32(0),
+                                reader.GetString(1),
+                                reader.GetDouble(2),
+                                reader.GetInt32(3),
+                                reader.GetDouble(4),
+                                reader.IsDBNull(5) ? "" : reader.GetString(5)));
+                        }
+                    }
+
+                    // 7. Categories
+                    if (await reader.NextResultAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            data.Categories.Add(new Category(reader.GetInt32(0), reader.GetString(1)));
+                        }
+                    }
+
+                    // 8. All Incomes
+                    if (await reader.NextResultAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            bool isPrimary = reader.GetBoolean(4);
+                            if (!isPrimary)
+                            {
+                                data.Incomes.Add(new Income(reader.GetInt32(8), reader.GetString(7), reader.GetDouble(0), reader.GetDateTime(2), false));
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    int dayOne = Convert.ToInt32(reader[5]);
+                                    int dayTwo = Convert.ToInt32(reader[6]);
+                                    // Use firstDay to determine the month and year
+                                    data.Incomes.Add(new Income(reader.GetInt32(8), reader.GetString(7), reader.GetDouble(0), new DateTime(firstDay.Year, firstDay.Month, dayOne), true));
+                                    data.Incomes.Add(new Income(reader.GetInt32(8), reader.GetString(7), reader.GetDouble(0), new DateTime(firstDay.Year, firstDay.Month, dayTwo), true));
+                                }
+                                catch
+                                {
+                                    if (!reader.IsDBNull(3))
+                                    {
+                                        int payFreq;
+                                        if (int.TryParse(Convert.ToString(reader[3]), out payFreq))
+                                        {
+                                            DateTime baseDate = reader.GetDateTime(2);
+                                            data.Incomes.Add(new Income(reader.GetInt32(8), reader.GetString(7), reader.GetDouble(0), payFreq, true, baseDate));
+
+                                            DateTime trackingDate = baseDate.AddDays(-payFreq);
+                                            while (trackingDate.Month == firstDay.Month && trackingDate.Year == firstDay.Year)
+                                            {
+                                                data.Incomes.Add(new Income(reader.GetInt32(8), reader.GetString(7), reader.GetDouble(0), payFreq, true, trackingDate));
+                                                trackingDate = trackingDate.AddDays(-payFreq);
+                                            }
+
+                                            trackingDate = baseDate.AddDays(payFreq);
+                                            while (trackingDate.Month == firstDay.Month && trackingDate.Year == firstDay.Year)
+                                            {
+                                                data.Incomes.Add(new Income(reader.GetInt32(8), reader.GetString(7), reader.GetDouble(0), payFreq, true, trackingDate));
+                                                trackingDate = trackingDate.AddDays(payFreq);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return data;
+        }
+
         #region User Queries
 
         public static async Task AddUser(string Username, string Password, string Name)
@@ -40,8 +261,9 @@ namespace Budget_Buddy
 
         public static async Task UpdateUserLastLogin(int userId)
         {
-            await using (var command = dataSource.CreateCommand("UPDATE Users SET last_login = '{" + DateTime.Now.ToString("MM-dd-yyyy HH:mm:ss") + "}' WHERE UserID = @userid"))
+            await using (var command = dataSource.CreateCommand("UPDATE Users SET last_login = @lastlogin WHERE UserID = @userid"))
             {
+                command.Parameters.AddWithValue("@lastlogin", DateTime.Now);
                 command.Parameters.AddWithValue("@userid", userId);
 
                 await command.ExecuteNonQueryAsync();
@@ -276,6 +498,7 @@ namespace Budget_Buddy
 
 
         //UPDATE TO ACCOUNT FOR NEW TABLE --CHANGED DONE
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<DateTime> GetPayday(int userId)
         {
             DateTime currentPayday = new DateTime();
@@ -414,6 +637,7 @@ namespace Budget_Buddy
         }
 
         //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<string> GetPayFrequency(int userId)
         {
             string result = "";
@@ -431,6 +655,7 @@ namespace Budget_Buddy
         }
 
         //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<List<int>> GetSetDays(int userId)
         {
             List<int> result = new List<int>();
@@ -449,6 +674,7 @@ namespace Budget_Buddy
         }
 
         //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<List<double>> GetUserPreferences(int userId)
         {
             List<double> result = new List<double>();
@@ -597,7 +823,7 @@ namespace Budget_Buddy
         //UPDATE TO ACCOUNT FOR NEW TABLE --DONE
         public static async Task UpdatePayFrequencyIndex(int userId, string payfrequency)
         {
-            await using (var command = dataSource.CreateCommand("UPDATE incomes SET payfrequency = '@payfrequency' WHERE UserId = @userid AND isprimary = true"))
+            await using (var command = dataSource.CreateCommand("UPDATE incomes SET payfrequency = @payfrequency WHERE UserId = @userid AND isprimary = true"))
             {
                 command.Parameters.AddWithValue("@payfrequency", payfrequency);
                 command.Parameters.AddWithValue("@userid", userId);
@@ -605,6 +831,7 @@ namespace Budget_Buddy
             }
         }
 
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<int> GetDebtPercent(int userId)
         {
             int result = 0;
@@ -623,6 +850,7 @@ namespace Budget_Buddy
             }
         }
 
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<int> GetSavingsPercent(int userId)
         {
             int result = 0;
@@ -780,6 +1008,7 @@ namespace Budget_Buddy
             }
         }
 
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<string> GetNameOfUser(int userId)
         {
             string result = "";
@@ -855,6 +1084,7 @@ namespace Budget_Buddy
             }
         }
 
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<double> GetDebtDollarAmount(int userId)
         {
             await using (var command = dataSource.CreateCommand($"SELECT debtdollaramount FROM UserPreferences WHERE UserID = @userid"))
@@ -874,6 +1104,7 @@ namespace Budget_Buddy
             }
         }
 
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<double> GetSavingsDollarAmount(int userId)
         {
             await using (var command = dataSource.CreateCommand($"SELECT savingsdollaramount FROM UserPreferences WHERE UserID = @userid"))
@@ -908,6 +1139,7 @@ namespace Budget_Buddy
             }
         }
 
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<double> GetBalance(int userId)
         {
             await using (var command = dataSource.CreateCommand($"SELECT currentbalance FROM UserPreferences WHERE UserID = @userid"))
@@ -947,6 +1179,7 @@ namespace Budget_Buddy
             }
         }
 
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<bool> GetDebtPaid(int userId)
         {
             await using (var command = dataSource.CreateCommand($"SELECT debtpaid FROM UserPreferences WHERE UserID = @userid"))
@@ -961,6 +1194,7 @@ namespace Budget_Buddy
             }
         }
 
+        [Obsolete("Use GetDashboardDataAsync instead for better performance.")]
         public static async Task<bool> GetSavingsPaid(int userId)
         {
             await using (var command = dataSource.CreateCommand($"SELECT savingspaid FROM UserPreferences WHERE UserID = @userid"))
