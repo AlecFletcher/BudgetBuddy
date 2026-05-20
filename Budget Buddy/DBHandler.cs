@@ -424,6 +424,7 @@ namespace Budget_Buddy
                 await using (var reader = await command.ExecuteReaderAsync())
                 {
                     await reader.ReadAsync();
+                    Console.WriteLine(reader[0].ToString());
                     result = Convert.ToString(reader[0]);
                 }
                 return result;

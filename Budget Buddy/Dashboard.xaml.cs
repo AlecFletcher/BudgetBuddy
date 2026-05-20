@@ -54,10 +54,10 @@ public partial class Dashboard : ContentPage
             //NEED TO DETERMINE HOW MANY DAYS TO SET FORWARD RUN RECURSIVELY??
             case "Weekly":
                 PayFrequencyIndex = 0;
-                PayFrequency = 6;
+                PayFrequency = 7;
                 if(dayDifference >= 7)
                 {
-                    await DBHandler.UpdatePayDay(PrimaryIncomeId, DBPayday.AddDays(Math.Floor((double)dayDifference / 7)));
+                    await DBHandler.UpdatePayDay(PrimaryIncomeId, DBPayday.AddDays(Math.Floor((double)dayDifference / 7) * 7));
                     DBPayday = DBPayday.AddDays(Math.Floor((double)dayDifference/7));
                     NewPaydayHit();
                 }
@@ -66,10 +66,10 @@ public partial class Dashboard : ContentPage
 
             case "BiWeekly":
                 PayFrequencyIndex = 1;
-                PayFrequency = 13;
+                PayFrequency = 14;
                 if (dayDifference >= 14)
                 {
-                    await DBHandler.UpdatePayDay(PrimaryIncomeId, DBPayday.AddDays(Math.Floor((double)dayDifference / 14)));
+                    await DBHandler.UpdatePayDay(PrimaryIncomeId, DBPayday.AddDays(Math.Floor((double)dayDifference / 14) * 14));
                     DBPayday = DBPayday.AddDays(Math.Floor((double)dayDifference / 14));
                     NewPaydayHit();
                 }
@@ -81,6 +81,13 @@ public partial class Dashboard : ContentPage
                 List<int> dayList = await DBHandler.GetSetDays(UserID);
                 SetDayOne = dayList[0];
                 SetDayTwo = dayList[1];
+                
+                //If changed pay periods and day is not in line and neds to be updated
+                if(DBPayday.Day != SetDayOne && DBPayday.Day != SetDayTwo)
+                {
+                    DBPayday = new DateTime(DateTime.Now.Year, DateTime.Now.Month, SetDayOne);
+                    await DBHandler.UpdatePayDay(PrimaryIncomeId, DBPayday);
+                }
                 //Current payday is setDayOne
                 if (DBPayday.Day == SetDayOne)
                 {
@@ -147,8 +154,8 @@ public partial class Dashboard : ContentPage
 
                 if (dayDifference >= DateTime.DaysInMonth(DBPayday.Year, DBPayday.Month))
                 {
-                    await DBHandler.UpdatePayDay(PrimaryIncomeId, DBPayday.AddMonths((int)Math.Floor((double)dayDifference / 30)));
-                    DBPayday = DBPayday.AddDays(Math.Floor((double)dayDifference / 14));
+                    await DBHandler.UpdatePayDay(PrimaryIncomeId, DBPayday.AddMonths((int)Math.Floor((double)dayDifference / 30) ));
+                    DBPayday = DBPayday.AddDays(Math.Floor((double)dayDifference / 30));
                     NewPaydayHit();
                 }
                 PopulateCurrentPayPeriodGUI();
@@ -172,7 +179,10 @@ public partial class Dashboard : ContentPage
 
     private async void PopulateCurrentPayPeriodGUI()
     {
-        Console.WriteLine("PopulateCurrentPayPeriodGUI ran");
+        current_payperiod_dashboard_grid.IsVisible = true;
+        other_payperiod_dashboard_grid.IsVisible = false;
+        current_balance_grid.IsVisible = true;
+        remaining_balance_grid.IsVisible = false;
 
         await DBHandler.GenerateBills(UserID, DBPayday, DBPayday.AddDays(PayFrequency - 1));
         Models.Income.AllIncomes = await DBHandler.GetAllIncomes(UserID);
